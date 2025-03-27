@@ -1,11 +1,17 @@
 from aiogram import types, Router
 from aiogram.client.bot import Bot
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.filters import StateFilter
 from app.services.fastapi_client import process_photo
 
 router = Router()
 
-@router.message(lambda message: message.photo or (message.document and message.document.mime_type.startswith('image/')))
+# Define states
+class UserInteractionStates(StatesGroup):
+    waiting_for_photo = State()
+
+@router.message(StateFilter(UserInteractionStates.waiting_for_photo), lambda message: message.photo or (message.document and message.document.mime_type.startswith('image/')))
 async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
     file_id = None
 
@@ -42,3 +48,6 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
             f"Адрес: {user_interaction['address']}"
         )
         await message.answer(response_message)
+
+        # Reset the state after processing the photo
+        await state.clear()
