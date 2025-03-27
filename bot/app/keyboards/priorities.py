@@ -23,10 +23,6 @@ def create_priorities_kb(selected_priorities):
             callback_data='priority:Бюджет'
         ),
         InlineKeyboardButton(
-            text=f"{'✅ ' if 'Задать вопрос' in selected_priorities else ''}Задать вопрос",
-            callback_data='priority:Задать вопрос'
-        ),
-        InlineKeyboardButton(
             text="Задать вопрос",
             callback_data='FAQ'
         ),

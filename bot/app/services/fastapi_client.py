@@ -9,6 +9,7 @@ async def process_photo(photo_file):
 
 
 async def process_question(question):
-    async with aiohttp.ClientSession() as session:
-        async with session.post(f"{FASTAPI_URL}/process_question", data={"question": question}) as response:
-            return await response.text()
+    return "Answer for the given question"  # TODO: Implement the logic to process the question and return answer
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post(f"{FASTAPI_URL}/process_question", data={"question": question}) as response:
+    #         return await response.text()

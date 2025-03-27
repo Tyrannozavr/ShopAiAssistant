@@ -5,12 +5,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from app.keyboards.priorities import create_priorities_kb
-from app.keyboards.interaction import interaction_kb
+from app.keyboards.photo_options import photo_options_kb
 
 # Define states
 class UserInteractionStates(StatesGroup):
     waiting_for_door_type = State()
     waiting_for_priorities = State()
+    waiting_for_photo_decision = State()
 
 # Declare a new router
 router = Router()
@@ -24,7 +25,7 @@ async def door_selection(message: types.Message, state: FSMContext):
     await state.set_state(UserInteractionStates.waiting_for_priorities)
     await state.update_data(priorities=[])
     await message.answer(
-        "Что для тебя главное в двери? выбери до 3 пунктов",
+        "Выберите ваши приоритеты (можно выбрать до 3):",
         reply_markup=create_priorities_kb([])
     )
 
@@ -58,8 +59,10 @@ async def handle_continue(callback_query: CallbackQuery, state: FSMContext):
     if len(priorities) == 0:
         await callback_query.answer("Выберите хотя бы один приоритет.", show_alert=True)
     else:
+        # Transition to the next state
+        await state.set_state(UserInteractionStates.waiting_for_photo_decision)
         await callback_query.message.answer(
-            "Отлично, теперь вы можете отправить мне фото и я помогу вам определиться с выбором. "
-            "Либо вы можете заказать вызов замерщика на дом.",
-            reply_markup=interaction_kb
+            "Хочешь, проанализирую твой интерьер и предложу, что подойдёт под него? "
+            "Можно прислать фото помещения или двери, которая нравится — подскажу, в каком стиле двигаться.",
+            reply_markup=photo_options_kb
         )
