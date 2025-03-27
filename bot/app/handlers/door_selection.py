@@ -73,7 +73,8 @@ async def handle_continue(callback_query: CallbackQuery, state: FSMContext):
 @router.message(StateFilter(UserInteractionStates.waiting_for_photo_decision))
 async def handle_photo_decision(message: types.Message, state: FSMContext):
     if message.text == "📸 Прислать фото интерьера / двери":
-        await message.answer("Хорошо, тогда жду фото.")
+        await message.answer("Хорошо, тогда жду фото. (к фото вы можете добавить любой интересующий вас вопрос)",
+                             reply_markup=types.ReplyKeyboardRemove())
         # Transition to a state where the user can send a photo
         await state.set_state(UserInteractionStates.waiting_for_photo)
     elif message.text == "🙈 Пока без фото":

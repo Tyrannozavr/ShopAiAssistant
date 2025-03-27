@@ -38,6 +38,9 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
             'address': user_data.get('address', '')
         }
 
+        # Extract any text sent with the photo
+        user_request = message.caption or message.text or ""
+
         # Send the user interaction data and advice as a response
         response_message = (
             f"Тип: {user_interaction['door_type']}\n"
@@ -45,7 +48,8 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
             f"Фото: [ссылка]\n"
             f"GPT-ответ: {user_interaction['gpt_answer']}\n"
             f"Контакт: {user_interaction['contact']}\n"
-            f"Адрес: {user_interaction['address']}"
+            f"Адрес: {user_interaction['address']}\n"
+            f"Запрос пользователя: {user_request}"
         )
         await message.answer(response_message)
 
