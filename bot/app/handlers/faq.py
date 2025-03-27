@@ -1,4 +1,5 @@
 from aiogram import types, Router
+from app.handlers.interaction import InteractionStates, interaction_kb
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -51,5 +52,6 @@ async def process_faq_question(message: types.Message, state: FSMContext):
     )
     await message.answer(response_message)
 
-    # Reset the state
-    await state.clear()
+    # After processing the FAQ, transition to the next step
+    await message.answer("Хотите вызвать замерщика?", reply_markup=interaction_kb)
+    await state.set_state(InteractionStates.waiting_for_measurer_decision)

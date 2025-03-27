@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import BOT_TOKEN
-from handlers import start, door_selection, faq, photo
+from handlers import start, door_selection, faq, photo, interaction
 
 # Initialize MemoryStorage
 storage = MemoryStorage()
@@ -20,6 +20,7 @@ dp.include_router(door_selection.router)
 dp.include_router(photo.router)
 dp.include_router(faq.router)
 dp.include_router(start.router)
+dp.include_router(interaction.router)
 
 logging.basicConfig(level=logging.INFO)
 

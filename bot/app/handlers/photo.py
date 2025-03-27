@@ -1,4 +1,5 @@
 from aiogram import types, Router
+from app.handlers.interaction import InteractionStates, interaction_kb
 from aiogram.client.bot import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -53,5 +54,6 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
         )
         await message.answer(response_message)
 
-        # Reset the state after processing the photo
-        await state.clear()
+        # After processing the photo, transition to the next step
+        await message.answer("Хотите вызвать замерщика?", reply_markup=interaction_kb)
+        await state.set_state(InteractionStates.waiting_for_measurer_decision)
