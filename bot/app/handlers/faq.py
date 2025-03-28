@@ -1,9 +1,11 @@
 from aiogram import types, Router
-from app.handlers.interaction import InteractionStates, interaction_kb
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.filters import StateFilter
+
+from app.handlers.contacts import InteractionStates
+from app.keyboards.interaction import interaction_kb
 from app.services.fastapi_client import process_question
 
 router = Router()

@@ -1,29 +1,25 @@
 from aiogram import types
 from aiogram.dispatcher.router import Router
-from aiogram.types import CallbackQuery
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.filters import StateFilter
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
-from app.keyboards.priorities import create_priorities_kb
 from app.keyboards.photo_options import photo_options_kb
+from app.keyboards.priorities import create_priorities_kb
+from app.utils.contacts import start_contact_interaction, UserInteractionStates
 
 # Define states
-class UserInteractionStates(StatesGroup):
-    waiting_for_door_type = State()
-    waiting_for_priorities = State()
-    waiting_for_photo_decision = State()
-    waiting_for_contact = State()
-    waiting_for_photo = State()
+
 
 # Declare a new router
 router = Router()
 
 @router.message(lambda message: message.text in ["Входная дверь", "Межкомнатная дверь"])
-async def door_selection(message: types.Message, state: FSMContext):
+async def door_selection(message: Message, state: FSMContext):
     # Save the door type in the user's state
     await state.update_data(door_type=message.text)
-    
+
     # Transition to the next state
     await state.set_state(UserInteractionStates.waiting_for_priorities)
     await state.update_data(priorities=[])
@@ -74,10 +70,13 @@ async def handle_continue(callback_query: CallbackQuery, state: FSMContext):
 async def handle_photo_decision(message: types.Message, state: FSMContext):
     if message.text == "📸 Прислать фото интерьера / двери":
         await message.answer("Хорошо, тогда жду фото. (к фото вы можете добавить любой интересующий вас вопрос)",
-                             reply_markup=types.ReplyKeyboardRemove())
+                             reply_markup=ReplyKeyboardRemove())
         # Transition to a state where the user can send a photo
         await state.set_state(UserInteractionStates.waiting_for_photo)
     elif message.text == "🙈 Пока без фото":
-        await message.answer("Пожалуйста, предоставьте ваши контактные данные.")
-        # Transition to a state where the user can provide contact information
-        await state.set_state(UserInteractionStates.waiting_for_contact)
+        await start_contact_interaction(message, state)
+
+
+
+
+

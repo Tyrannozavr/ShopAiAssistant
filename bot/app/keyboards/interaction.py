@@ -10,3 +10,11 @@ interaction_kb = ReplyKeyboardMarkup(
     resize_keyboard=True,
     one_time_keyboard=True
 )
+contact_kb = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="📞 Отправить номер телефона", request_contact=True)],
+        [KeyboardButton(text="✏️ Ввести вручную")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
