@@ -1,18 +1,18 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from models import Configuration
 from depends.db import get_db
 
-app = FastAPI()
+router = APIRouter()
 
-@app.get("/config/{key}")
+@router.get("/config/{key}")
 async def get_config(key: str, db: Session = Depends(get_db)):
     config = db.query(Configuration).filter(Configuration.key == key).first()
     if not config:
         raise HTTPException(status_code=404, detail="Configuration not found")
     return {"key": config.key, "value": config.value}
 
-@app.post("/config/{key}")
+@router.post("/config/{key}")
 async def set_config(key: str, value: str, db: Session = Depends(get_db)):
     config = db.query(Configuration).filter(Configuration.key == key).first()
     if config:

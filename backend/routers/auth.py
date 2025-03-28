@@ -16,3 +16,5 @@ async def login(username: str = Form(...), password: str = Form(...), db: Sessio
 
     access_token = create_access_token(manager)
     return {"access_token": access_token, "token_type": "bearer"}
+
+

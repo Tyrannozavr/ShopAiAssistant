@@ -1,3 +1,4 @@
+alembic~=1.15.2
 SQLAlchemy~=2.0.40
 fastapi~=0.115.12
 starlette~=0.46.1
@@ -5,3 +6,4 @@ typing_extensions~=4.13.0
 PyJWT~=2.10.1
 pydantic~=2.10.6
 passlib~=1.7.4
+python-dotenv~=1.1.0

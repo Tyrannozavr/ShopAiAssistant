@@ -12,7 +12,7 @@ def create_access_token(manager: Manager, expires_delta: timedelta = None):
         "user_id": manager.id,
         "identifier": manager.identifier,
         "username": manager.username,
-        "city": manager.city,
+        "city": manager.city.name,
         "is_staff": manager.is_staff,
         "is_admin": manager.is_admin,
         "chat_id": manager.chat_id
