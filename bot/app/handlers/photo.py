@@ -26,36 +26,15 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
     if file_id:
         file_info = await bot.get_file(file_id)
         photo_file = await bot.download_file(file_info.file_path)
-
-        # Process the photo to get advice
-        advice = await process_photo(photo_file)
-
-        # Retrieve user interaction data from the state
         user_data = await state.get_data()
-        user_interaction = {
-            'door_type': user_data.get('door_type', ''),
-            'priorities': user_data.get('priorities', []),
-            'photo': file_id,
-            'gpt_answer': advice,
-            'contact': user_data.get('contact', ''),
-            'address': user_data.get('address', '')
-        }
-
-        # Extract any text sent with the photo
         user_request = message.caption or message.text or ""
 
-        # Send the user interaction data and advice as a response
-        response_message = (
-            f"Тип: {user_interaction['door_type']}\n"
-            f"Приоритеты: {', '.join(user_interaction['priorities'])}\n"
-            f"Фото: [ссылка]\n"
-            f"GPT-ответ: {user_interaction['gpt_answer']}\n"
-            f"Контакт: {user_interaction['contact']}\n"
-            f"Адрес: {user_interaction['address']}\n"
-            f"Запрос пользователя: {user_request}"
-        )
-        await message.answer(response_message)
-
+        # Process the photo to get advice
+        response = await process_photo(photo_file,
+                                     user_request=user_request,
+                                     door_type=user_data.get('door_type', ''),
+                                     priorities=user_data.get('priorities', '') if 'priorities' in user_data else [])  # Extract priorities from the state if available, otherwise use an empty list)
+        await message.answer(response, reply_markup=interaction_kb)
         # After processing the photo, transition to the next step
         await message.answer("Хотите вызвать замерщика?", reply_markup=interaction_kb)
         await state.set_state(InteractionStates.waiting_for_measurer_decision)

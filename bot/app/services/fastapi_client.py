@@ -1,29 +1,42 @@
-import json
+from typing import BinaryIO
 
 import aiohttp
+from aiohttp import ClientResponse
+
 from app.config import BACKEND_URL
-from logging_config import logger
 
 
-async def process_photo(photo_file):
-    return "Advice for the given photo"  # TODO: Implement the logic to process the photo and return advice
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(f"{FASTAPI_URL}/process_photo", data={"photo": photo_file}) as response:
-    #         return await response.text()
+async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities: list, user_request: str) -> str:
+    url = f"{BACKEND_URL}/process_photo"
+    data = {
+        "door_type": door_type,
+        "priorities": priorities,
+        "user_request": user_request
+    }
+    files = {
+        "photo": photo_file
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, data=data, files=files) as response:
+                if response.status == 200:
+                    return await response.text()
+                else:
+                    return f"Failed to process photo. Status code: {response.status}"
+        except aiohttp.ClientError as e:
+            return f"Error connecting to the photo processing service: {str(e)}"
 
 
-async def process_question(question):
+async def process_question(question) -> ClientResponse:
     return "Answer for the given question"  # TODO: Implement the logic to process the question and return answer
     # async with aiohttp.ClientSession() as session:
     #     async with session.post(f"{FASTAPI_URL}/process_question", data={"question": question}) as response:
     #         return await response.text()
 
 
-import aiohttp
-from app.config import BACKEND_URL  # Ensure BACKEND_URL is defined in your config
 
-async def manager_register(identifier, chat_id):
-    logger.info(f"Manager registration request for chat_id: {chat_id}, identifier: {identifier}")
+async def manager_register(identifier, chat_id) -> ClientResponse:
     url = f"{BACKEND_URL}/api/manager/register_chat"
     data = {
         "identifier": identifier,

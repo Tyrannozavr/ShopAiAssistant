@@ -8,6 +8,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 
 from app.handlers.door_selection import UserInteractionStates
 from app.utils.contacts import start_contact_interaction
+from logging_config import logger
 
 router = Router()
 
@@ -28,7 +29,6 @@ async def handle_measurer_decision(message: types.Message, state: FSMContext):
 
 @router.message(StateFilter(UserInteractionStates.waiting_for_contact))
 async def handle_contact_input(message: Message, state: FSMContext):
-    print("Message received: ", message.text)
     if message.contact:
         # If the user shared their contact, use it
         contact_info = f"Телефон: {message.contact.phone_number}"
@@ -64,5 +64,11 @@ async def handle_address(message: types.Message, state: FSMContext):
     logging.info(f"Received address: {message.text} in state: {await state.get_state()}")
     address = message.text
     await state.update_data(address=address)
+    
+    # Log all data stored in the state
+    state_data = await state.get_data()
+
+    logger.info(f"All state data: {state_data}")
+    
     await message.answer("Спасибо! Менеджер скоро свяжется с вами.")
     await state.clear()
