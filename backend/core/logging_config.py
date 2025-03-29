@@ -1,5 +1,9 @@
 import logging
 import logging.config
+import os
+
+# Ensure the logs directory exists
+os.makedirs('logs', exist_ok=True)
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -29,7 +33,7 @@ LOGGING_CONFIG = {
         "file": {
             "class": "logging.FileHandler",
             "formatter": "default",
-            "filename": "app.log",
+            "filename": "logs/app.log",
             "level": "INFO",
         },
     },
