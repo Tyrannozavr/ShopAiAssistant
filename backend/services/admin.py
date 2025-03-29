@@ -1,9 +1,21 @@
-from starlette_admin.contrib.sqla import ModelView, Admin
+from typing import Optional
+
+from starlette.requests import Request
+from starlette_admin.contrib.sqla import ModelView
 from starlette_admin.fields import HasOne, HasMany
+from starlette_admin import BaseField
+from dataclasses import dataclass
+from starlette_admin.contrib.sqla import Admin as BaseAdmin
+
+
+@dataclass
+class CustomIdentifierField(BaseField):
+    render_function_key: str = "customIdentifierRender"
 
 from db import engine
-from models import City, Manager, Configuration
-from services.auth_service import get_hashed_password
+from models import Configuration
+from models import Manager, City
+
 
 class CityAdmin(ModelView):
     identity = "city"
@@ -11,33 +23,27 @@ class CityAdmin(ModelView):
     fields = [
         "id",
         "name",
-        HasMany("managers", label="Managers"),
+        HasMany("managers", label="Managers", identity="manager"),
     ]
+
 
 class ManagerAdmin(ModelView):
     identity = "manager"
     label = "Managers"
+    model = Manager
     fields = [
         "id",
         "identifier",
         "username",
         "hashed_password",
-        HasOne("city", label="City"),
+        HasOne("city", label="City", identity="city"),
         "is_staff",
         "is_admin",
         "chat_id",
+        CustomIdentifierField("custom_identifier", label="Custom Identifier"),
     ]
 
-    async def create(self, data):
-        # Hash the password before creating the user
-        data["hashed_password"] = get_hashed_password(data.pop("password"))
-        return await super().create(data)
 
-    async def update(self, pk, data):
-        # Hash the password if it's being updated
-        if "password" in data:
-            data["hashed_password"] = get_hashed_password(data.pop("password"))
-        return await super().update(pk, data)
 
 class ConfigurationAdmin(ModelView):
     identity = "configuration"
@@ -47,6 +53,11 @@ class ConfigurationAdmin(ModelView):
         "key",
         "value",
     ]
+
+
+class Admin(BaseAdmin):
+    def custom_render_js(self, request: Request) -> Optional[str]:
+        return request.url_for("static", path="js/custom_render.js")
 
 admin = Admin(engine, title="Your Admin Title")
 

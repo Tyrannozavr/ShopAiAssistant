@@ -5,7 +5,7 @@ from models import Manager
 # Secret key for encoding and decoding JWT tokens
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Token expiration time
+ACCESS_TOKEN_EXPIRE_MINUTES = 240  # Token expiration time
 
 def create_access_token(manager: Manager, expires_delta: timedelta = None):
     to_encode = {

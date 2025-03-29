@@ -1,5 +1,7 @@
 from sqlalchemy import Column, String, Boolean, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
+from fastapi import Request
+
 from db import Base
 import uuid
 
@@ -26,6 +28,9 @@ class Manager(Base):
 
     # Relationship to City
     city = relationship("City", back_populates="managers")
+
+
+
 
 class Configuration(Base):
     __tablename__ = "configurations"
