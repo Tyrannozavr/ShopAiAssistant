@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.12
 
 # Set working directory
 WORKDIR /app
@@ -16,15 +16,6 @@ RUN pip install --upgrade pip && \
 # Копирование кода приложения
 COPY . .
 
-# Настройка cron
-COPY crontab /etc/cron.d/mycron
-RUN chmod 0644 /etc/cron.d/mycron && \
-    crontab /etc/cron.d/mycron && \
-    touch /app/cron.log
-
-# Скрипт запуска cron и uvicorn
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 RUN alembic upgrade head
-# Запуск приложения
-CMD ["/entrypoint.sh"]
+ENV PYTHONPATH=/app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
