@@ -6,7 +6,7 @@ from starlette_admin import BaseField
 from dataclasses import dataclass
 from starlette_admin.contrib.sqla import Admin as BaseAdmin
 from db import engine
-from models import Configuration, Manager, City, ChatGPTInteraction, Order, Jokes, Anecdote  # Import new models
+from models import Configuration, Manager, City, ChatGPTInteraction, Order, Jokes, Anecdote
 
 @dataclass
 class InviteField(BaseField):
@@ -57,12 +57,13 @@ class ChatGPTInteractionAdmin(ModelView):
     model = ChatGPTInteraction
     fields = [
         "id",
+        "user_id",  # Add user_id field
+        "datetime",  # Add datetime field
         "prompt",
         "response",
         "photo_url",
     ]
 
-# New ModelView for Order
 class OrderAdmin(ModelView):
     identity = "order"
     label = "Orders"
@@ -84,7 +85,6 @@ class OrderAdmin(ModelView):
         "file_id",
     ]
 
-# New ModelView for Jokes
 class JokesAdmin(ModelView):
     identity = "jokes"
     label = "Jokes"
@@ -113,6 +113,6 @@ admin.add_view(CityAdmin(City))
 admin.add_view(ManagerAdmin(Manager))
 admin.add_view(ConfigurationAdmin(Configuration))
 admin.add_view(ChatGPTInteractionAdmin(ChatGPTInteraction))
-admin.add_view(OrderAdmin(Order))  # Register the Order admin view
-admin.add_view(JokesAdmin(Jokes))  # Register the Jokes admin view
-admin.add_view(AnecdoteAdmin(Anecdote))  # Register the Anecdote admin view
+admin.add_view(OrderAdmin(Order))
+admin.add_view(JokesAdmin(Jokes))
+admin.add_view(AnecdoteAdmin(Anecdote))

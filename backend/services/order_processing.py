@@ -77,15 +77,10 @@ def process_order(order: OrderSchema, db: Session):
     # Generate the order message
     order_message = generate_order_message(order)
 
-    # Send the order notification
+    logger.info(f"Generated order message for chat_id {chat_id}: {order_message}")
     if chat_id:
         send_order_notification(chat_id=chat_id, message=order_message, file_id=order.file_id)
 
-    # Mock implementation of order processing
-    logger.info(f"Processing order for city: {order.city}, door type: {order.door_type}")
-    logger.info(f"Priorities: {order.priorities}")
-    logger.info(f"Contact: {order.contact}")
-    logger.info(f"Address: {order.address}")
     # Add more detailed processing logic here
 
     return {"status": "success", "message": "Order processed successfully", "chat_id": chat_id}

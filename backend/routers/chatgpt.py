@@ -27,20 +27,13 @@ async def process_photo(
     # Check if the user has reached the photo limit
     if check_limit(user_id=user_id, db=db, limit_key="photo", limit_value=photo_limit):
         joke = get_random_joke(db)
-        return {"message": "Daily limit reached", "joke": joke}
+        return {"message": "Daily limit reached", "result": joke}
 
     logger.info(f"Processing photo for user {user_id}")
     result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
                                            priorities=priorities, user_request=user_request, db=db)
     return {"result": result}
-    if check_limit(user_id=user_id, db=db, limit_key="photo", limit_value=photo_limit):
-        joke = get_random_joke(db)
-        return {"message": "Daily limit reached", "joke": joke}
 
-    logger.info(f"Processing photo for user {user_id}")
-    result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
-                                           priorities=priorities, user_request=user_request, db=db)
-    return {"result": result}
 
 @router.post("/question")
 async def process_question(
@@ -55,7 +48,7 @@ async def process_question(
     question_limit = int(question_limit.value)
     if check_limit(user_id=user_id, db=db, limit_key="question", limit_value=question_limit):
         joke = get_random_joke(db)
-        return {"message": "Daily limit reached", "joke": joke}
+        return {"message": "Daily limit reached", "result": joke}
 
     logger.info(f"Processing question for user {user_id}")
     result = chatgpt_service.get_response(user_id=user_id, door_type=door_type, priorities=priorities,

@@ -79,14 +79,34 @@ async def manager_register(identifier, chat_id) -> ClientResponse:
 async def save_order(order_data: dict) -> str:
     logger.info(f"Order data: {order_data}")
     url = f"{BACKEND_URL}/api/orders/"
-    
+
+    # Construct the JSON payload based on the provided structure
+    json_data = {
+        "address": order_data.get("address", ""),
+        "call_measurer": order_data.get("call_measurer", False),
+        "city": order_data.get("city", ""),
+        "contact": order_data.get("contact", ""),
+        "default_contact": {
+            "first_name": order_data.get("default_contact", {}).get("first_name", ""),
+            "last_name": order_data.get("default_contact", {}).get("last_name", ""),
+            "username": order_data.get("default_contact", {}).get("username", "")
+        },
+        "door_type": order_data.get("door_type", ""),
+        "gpt_answer": order_data.get("gpt_answer", ""),
+        "photo_url": order_data.get("photo_url", ""),
+        "priorities": order_data.get("priorities", []),
+        "user_request": order_data.get("user_request", "")
+    }
+
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.post(url, json=order_data) as response:
+            async with session.post(url, json=json_data) as response:
                 if response.status == 200:
                     result = await response.json()
                     return result.get('message', 'Order saved successfully')
                 else:
+                    error = await response.json()
+                    logger.error(f"Failed to save order. Status code: {response.status}, error: {error}")
                     return f"Failed to save order. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the order service: {str(e)}"

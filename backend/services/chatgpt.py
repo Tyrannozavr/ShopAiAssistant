@@ -27,7 +27,7 @@ class ChatGPT:
         prompt = self.update_prompt(question=question, priorities=priorities, door_type=door_type, template=prompt_template)
         logger.info(f"Generated prompt: {prompt}")
         response_content = self._send_request(prompt)
-        self.store_interaction(db, user_id, prompt, response_content)
+        self.store_interaction(db=db, user_id=user_id, prompt=prompt, response=response_content)
         return response_content
 
     def _send_request(self, prompt: str) -> str:

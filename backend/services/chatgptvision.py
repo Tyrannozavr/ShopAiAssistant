@@ -24,7 +24,7 @@ class ChatGPTVision(ChatGPT):
         base64_image = self.prepare_image(photo_file)
         response_content = self._send_request(prompt, base64_image)
         photo_url = self.save_image(photo_file)
-        self.store_interaction(db, user_id=user_id, prompt=prompt, response=response_content, photo_url=photo_url)
+        self.store_interaction(prompt=prompt, response=response_content, photo_url=photo_url, db=db, user_id=user_id)
         return response_content
 
     def _send_request(self, prompt: str, base64_image: str) -> str:
