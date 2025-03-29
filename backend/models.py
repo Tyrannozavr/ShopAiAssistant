@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, Integer, Text, ForeignKey
+from sqlalchemy import Column, String, Boolean, Integer, Text, ForeignKey, func, DateTime
 from sqlalchemy.orm import relationship
 from fastapi import Request
 
@@ -34,6 +34,8 @@ class ChatGPTInteraction(Base):
     __tablename__ = 'chatgpt_interactions'
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False)
+    datetime = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     prompt = Column(String, nullable=False)
     response = Column(String, nullable=False)
     photo_url = Column(String, nullable=True)  # Store the URL of the photo

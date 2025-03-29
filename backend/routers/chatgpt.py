@@ -19,12 +19,13 @@ async def process_photo(
         door_type: str = Body(...),
         priorities: List[str] = Body(...),
         user_request: str = Body(...),
-        user_id: int = Body(...),
+        user_id: str = Body(...),
         db: Session = Depends(get_db),
         chatgpt_service: ChatGPTVision = Depends(get_chatgpt_vision_service)
 ):
     logger.info(f"Processing photo for user {user_id}")
-    result = chatgpt_service.process_photo(photo.file, door_type, priorities, user_request, db)
+    result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
+                                           priorities=priorities, user_request=user_request, db=db)
     return {"result": result}
 
 @router.post("/question")
@@ -32,11 +33,12 @@ async def process_photo(
         door_type: str = Body(...),
         priorities: List[str] = Body(...),
         user_request: str = Body(...),
-        user_id: int = Body(...),
+        user_id: str = Body(...),
         db: Session = Depends(get_db),
         chatgpt_service: ChatGPT = Depends(get_chatgpt_service)
 ):
     logger.info(f"Processing photo for user {user_id}")
-    result = chatgpt_service.get_response(door_type, priorities, user_request, db)
+    result = chatgpt_service.get_response(user_id=user_id, door_type=door_type, priorities=priorities,
+                                          question=user_request, db=db)
     return {"result": result}
 

@@ -1,15 +1,15 @@
-import os
 import base64
+import os
 import uuid
-from openai import OpenAI
+from io import BytesIO
+
+from PIL import Image
 from sqlalchemy.orm import Session
 
 from core.Config import MEDIA_ROOT, MEDIA_URL
-from core.logging_config import logger
-from models import Configuration, ChatGPTInteraction
-from PIL import Image
-from io import BytesIO
+from models import ChatGPTInteraction
 from services.chatgpt import ChatGPT
+
 
 class ChatGPTVision(ChatGPT):
     def __init__(self):
@@ -17,14 +17,14 @@ class ChatGPTVision(ChatGPT):
         self.prompt_key = "photo_prompt"  # Set a different key for retrieving the prompt
         self.image_storage_path = MEDIA_ROOT  # Define where to store images
 
-    def process_photo(self, photo_file, door_type: str, priorities: list, user_request: str, db: Session):
+    def process_photo(self, user_id: str, photo_file, door_type: str, priorities: list, user_request: str, db: Session):
         # prompt = self.create_prompt(db, door_type, priorities, user_request)
         prompt = self.get_prompt_template(db)
         prompt = self.update_prompt(template=prompt, question=user_request, priorities=priorities, door_type=door_type)
         base64_image = self.prepare_image(photo_file)
         response_content = self._send_request(prompt, base64_image)
         photo_url = self.save_image(photo_file)
-        self.store_interaction(db, prompt, response_content, photo_url)
+        self.store_interaction(db, user_id=user_id, prompt=prompt, response=response_content, photo_url=photo_url)
         return response_content
 
     def _send_request(self, prompt: str, base64_image: str) -> str:
@@ -48,8 +48,8 @@ class ChatGPTVision(ChatGPT):
         )
         return response.choices[0].message.content
 
-    def store_interaction(self, db: Session, prompt: str, response: str, photo_url: str):
-        interaction = ChatGPTInteraction(prompt=prompt, response=response, photo_url=photo_url)
+    def store_interaction(self, user_id: str, db: Session, prompt: str, response: str, photo_url: str):
+        interaction = ChatGPTInteraction(user_id=user_id, prompt=prompt, response=response, photo_url=photo_url)
         db.add(interaction)
         db.commit()
 

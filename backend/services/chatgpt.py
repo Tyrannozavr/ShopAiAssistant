@@ -22,12 +22,12 @@ class ChatGPT:
     def update_prompt(self, template: str, question: str, priorities: list, door_type: str) -> str:
         return template.format(question=question, priorities=", ".join(priorities), door_type=door_type)
 
-    def get_response(self, question: str, priorities: list, door_type: str, db: Session) -> str:
+    def get_response(self, user_id: str, question: str, priorities: list, door_type: str, db: Session) -> str:
         prompt_template = self.get_prompt_template(db)
         prompt = self.update_prompt(question=question, priorities=priorities, door_type=door_type, template=prompt_template)
         logger.info(f"Generated prompt: {prompt}")
         response_content = self._send_request(prompt)
-        self.store_interaction(db, prompt, response_content)
+        self.store_interaction(db, user_id, prompt, response_content)
         return response_content
 
     def _send_request(self, prompt: str) -> str:
@@ -43,7 +43,7 @@ class ChatGPT:
         )
         return response.choices[0].message.content
 
-    def store_interaction(self, db: Session, prompt: str, response: str):
-        interaction = ChatGPTInteraction(prompt=prompt, response=response)
+    def store_interaction(self, db: Session, user_id: str, prompt: str, response: str):
+        interaction = ChatGPTInteraction(user_id=user_id, prompt=prompt, response=response)
         db.add(interaction)
         db.commit()
