@@ -23,6 +23,6 @@ async def create_order(order: Order, db: Session = Depends(get_db)):
     # Mocked response for creating an order
     if not order:
         raise HTTPException(status_code=400, detail="Invalid order data")
-    result = process_order(order=order, db=db)
+    result = await process_order(order=order, db=db)
     
     return {"message": "Order created successfully", "order": order, "processing_result": result}

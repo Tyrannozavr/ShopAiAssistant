@@ -46,12 +46,12 @@ def generate_order_message(order: OrderSchema) -> str:
     )
     return message
 
-def send_order_notification(chat_id: str, message: str, file_id: str = None):
+async def send_order_notification(chat_id: str, message: str, file_id: str = None):
     # Send the order message using TelegramNotificationService
     notification_service = TelegramNotificationService()
-    notification_service.send_message(chat_id=chat_id, message=message, file_id=file_id)
+    await notification_service.send_message(chat_id=chat_id, message=message, file_id=file_id)
 
-def process_order(order: OrderSchema, db: Session):
+async def process_order(order: OrderSchema, db: Session):
     # Store the order in the database
     order_record = Order(
         city=order.city,
@@ -79,7 +79,7 @@ def process_order(order: OrderSchema, db: Session):
 
     logger.info(f"Generated order message for chat_id {chat_id}: {order_message}")
     if chat_id:
-        send_order_notification(chat_id=chat_id, message=order_message, file_id=order.file_id)
+        await send_order_notification(chat_id=chat_id, message=order_message, file_id=order.file_id)
 
     # Add more detailed processing logic here
 
