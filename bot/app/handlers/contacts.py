@@ -59,16 +59,18 @@ async def handle_manual_input(message: Message, state: FSMContext):
     await state.update_data(contact=contact_info)
     await handle_contact_input(message, state)
 
+from app.services.fastapi_client import save_order
+
 @router.message(StateFilter(InteractionStates.waiting_for_address))
 async def handle_address(message: types.Message, state: FSMContext):
     logging.info(f"Received address: {message.text} in state: {await state.get_state()}")
     address = message.text
     await state.update_data(address=address)
-    
-    # Log all data stored in the state
-    state_data = await state.get_data()
-
-    logger.info(f"All state data: {state_data}")
-    
     await message.answer("Спасибо! Менеджер скоро свяжется с вами.")
+    
+    # Retrieve all data from the state
+    order_data = await state.get_data()
+    
+    # Save the order
+    await save_order(order_data)
     await state.clear()

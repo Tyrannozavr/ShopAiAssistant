@@ -4,6 +4,7 @@ import aiohttp
 from aiohttp import FormData, ClientResponse
 
 from app.config import BACKEND_URL
+from logging_config import logger
 
 
 async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities: list, user_request: str, user_id: int) -> str:
@@ -32,7 +33,7 @@ async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities:
             return f"Error connecting to the photo processing service: {str(e)}"
 
 
-async def process_question(question) -> ClientResponse:
+async def process_question(door_type: str, priorities: list, user_request: str, user_id: int) -> str:
     return "Answer for the given question"  # TODO: Implement the logic to process the question and return answer
     # async with aiohttp.ClientSession() as session:
     #     async with session.post(f"{FASTAPI_URL}/process_question", data={"question": question}) as response:
@@ -56,3 +57,18 @@ async def manager_register(identifier, chat_id) -> ClientResponse:
                     return f"Failed to register manager. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the registration service: {str(e)}"
+
+async def save_order(order_data: dict) -> str:
+    logger.info(f"Order data: {order_data}")
+    url = f"{BACKEND_URL}/api/orders/"
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=order_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    return result.get('message', 'Order saved successfully')
+                else:
+                    return f"Failed to save order. Status code: {response.status}"
+        except aiohttp.ClientError as e:
+            return f"Error connecting to the order service: {str(e)}"

@@ -31,6 +31,7 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
         photo_file = await bot.download_file(file_info.file_path)
         user_data = await state.get_data()
         user_request = message.caption or message.text or ""
+        await state.update_data(user_request=user_request)
 
         # Send a processing message or animation
         processing_message = await message.answer("Обрабатываю ваше фото, пожалуйста, подождите...")
@@ -50,6 +51,7 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
         await processing_message.delete()
 
         await message.answer(response, reply_markup=interaction_kb)
+        await state.update_data(gpt_answer=response)
         # After processing the photo, transition to the next step
         await message.answer("Хотите вызвать замерщика?", reply_markup=interaction_kb)
         await state.set_state(InteractionStates.waiting_for_measurer_decision)

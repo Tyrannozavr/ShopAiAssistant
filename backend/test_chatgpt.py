@@ -4,7 +4,7 @@ from PIL import Image
 from dotenv import load_dotenv
 
 from depends.db import get_db
-from services.chatgpt import ChatGPT
+from services.chatgpt import ChatGPTVision
 
 
 # Set up the database session (replace with your actual database URL)
@@ -14,7 +14,7 @@ from services.chatgpt import ChatGPT
 load_dotenv(".env")
 def test_process_photo():
     # Initialize the ChatGPT service
-    chatgpt_service = ChatGPT()
+    chatgpt_service = ChatGPTVision()
 
     # Create a test database session
     # db = SessionLocal()
