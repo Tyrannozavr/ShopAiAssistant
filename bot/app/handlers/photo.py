@@ -7,15 +7,18 @@ from aiogram.filters import StateFilter
 from app.handlers.contacts import InteractionStates
 from app.keyboards.interaction import interaction_kb
 from app.services.fastapi_client import process_photo
+from app.utils.contacts import UserInteractionStates
+from logging_config import logger
 
 router = Router()
 
-# Define states
-class UserPhotoInteractionStates(StatesGroup):
-    waiting_for_photo = State()
 
-@router.message(StateFilter(UserPhotoInteractionStates.waiting_for_photo), lambda message: message.photo or (message.document and message.document.mime_type.startswith('image/')))
+# @router.message(StateFilter(UserPhotoInteractionStates.waiting_for_photo), lambda message: message.photo or (message.document and message.document.mime_type.startswith('image/')))
+@router.message(StateFilter(UserInteractionStates.waiting_for_photo))
 async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
+    logger.info(f"Received photo")
+    if message.document:
+        logger.info(f"{message.document.mime_type}")
     file_id = None
 
     if message.photo:

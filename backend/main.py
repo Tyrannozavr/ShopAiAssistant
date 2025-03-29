@@ -25,7 +25,6 @@ app.include_router(admin_router.router, tags=["Admin"])
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
-    logger.info("Custom Swagger UI HTML called")
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title=app.title + " - Swagger UI",

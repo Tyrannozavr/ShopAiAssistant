@@ -30,7 +30,13 @@ class Manager(Base):
     city = relationship("City", back_populates="managers")
 
 
+class ChatGPTInteraction(Base):
+    __tablename__ = 'chatgpt_interactions'
 
+    id = Column(Integer, primary_key=True, index=True)
+    prompt = Column(String, nullable=False)
+    response = Column(String, nullable=False)
+    photo_url = Column(String, nullable=False)  # Store the URL of the photo
 
 class Configuration(Base):
     __tablename__ = "configurations"

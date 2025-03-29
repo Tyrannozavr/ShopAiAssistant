@@ -1,16 +1,12 @@
-from aiogram import types
-from aiogram.dispatcher.router import Router
+from aiogram import types, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
 from app.keyboards.photo_options import photo_options_kb
 from app.keyboards.priorities import create_priorities_kb
 from app.utils.contacts import start_contact_interaction, UserInteractionStates
-
-# Define states
-
+from logging_config import logger
 
 # Declare a new router
 router = Router()
@@ -68,13 +64,16 @@ async def handle_continue(callback_query: CallbackQuery, state: FSMContext):
 
 @router.message(StateFilter(UserInteractionStates.waiting_for_photo_decision))
 async def handle_photo_decision(message: types.Message, state: FSMContext):
+    logger.info(f"Received photo decision: {message.text}")
     if message.text == "📸 Прислать фото интерьера / двери":
         await message.answer("Хорошо, тогда жду фото. (к фото вы можете добавить любой интересующий вас вопрос)",
                              reply_markup=ReplyKeyboardRemove())
-        # Transition to a state where the user can send a photo
         await state.set_state(UserInteractionStates.waiting_for_photo)
+        logger.info(f"Waiting for photo in state: {await state.get_state()}")
     elif message.text == "🙈 Пока без фото":
         await start_contact_interaction(message, state)
+    else:
+        logger.error(f"Invalid photo decision: {message.text}")
 
 
 

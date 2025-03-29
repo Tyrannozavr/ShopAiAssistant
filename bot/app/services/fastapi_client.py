@@ -1,25 +1,26 @@
 from typing import BinaryIO
 
 import aiohttp
-from aiohttp import ClientResponse
+from aiohttp import FormData, ClientResponse
 
 from app.config import BACKEND_URL
 
 
 async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities: list, user_request: str) -> str:
-    url = f"{BACKEND_URL}/process_photo"
-    data = {
-        "door_type": door_type,
-        "priorities": priorities,
-        "user_request": user_request
-    }
-    files = {
-        "photo": photo_file
-    }
+    url = f"{BACKEND_URL}/api/chatgpt/photo"
+    
+    # Create a FormData object to handle file uploads
+    form_data = FormData()
+    form_data.add_field('door_type', door_type)
+    form_data.add_field('priorities', ','.join(priorities))
+    form_data.add_field('user_request', user_request)
+    
+    if photo_file:
+        form_data.add_field('photo', photo_file, filename='photo.jpg', content_type='image/jpeg')
     
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.post(url, data=data, files=files) as response:
+            async with session.post(url, data=form_data) as response:
                 if response.status == 200:
                     return await response.text()
                 else:
