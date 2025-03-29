@@ -1,5 +1,9 @@
 import logging
 import logging.config
+import os
+
+# Ensure the logs directory exists
+os.makedirs('logs', exist_ok=True)
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -24,17 +28,17 @@ LOGGING_CONFIG = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
-            "level": "INFO",
+            "level": "ERROR",
         },
         "file": {
             "class": "logging.FileHandler",
             "formatter": "default",
-            "filename": "app.log",
-            "level": "INFO",
+            "filename": "logs/app.log",
+            "level": "ERROR",
         },
     },
     "root": {
-        "level": "INFO",
+        "level": "ERROR",
         "handlers": ["console", "file"],
     },
 }

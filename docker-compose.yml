@@ -1,0 +1,27 @@
+services:
+  telegram_bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./flowers_back
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data:cached
