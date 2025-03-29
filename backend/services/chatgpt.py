@@ -26,11 +26,11 @@ class ChatGPT:
         prompt_template = self.get_prompt_template(db)
         prompt = self.update_prompt(question=question, priorities=priorities, door_type=door_type, template=prompt_template)
         logger.info(f"Generated prompt: {prompt}")
-        response_content = self.send_request(prompt)
+        response_content = self._send_request(prompt)
         self.store_interaction(db, prompt, response_content)
         return response_content
 
-    def send_request(self, prompt: str) -> str:
+    def _send_request(self, prompt: str) -> str:
         response = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[

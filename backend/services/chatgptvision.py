@@ -9,47 +9,25 @@ from core.logging_config import logger
 from models import Configuration, ChatGPTInteraction
 from PIL import Image
 from io import BytesIO
+from services.chatgpt import ChatGPT
 
-class ChatGPTVision:
+class ChatGPTVision(ChatGPT):
     def __init__(self):
-        self.client = OpenAI(
-            api_key=os.getenv("PROXYAPI_API_KEY"),  # Ensure you have this key in your environment variables
-            base_url="https://api.proxyapi.ru/openai/v1"
-        )
+        super().__init__()
+        self.prompt_key = "photo_prompt"  # Set a different key for retrieving the prompt
         self.image_storage_path = MEDIA_ROOT  # Define where to store images
 
-    def get_prompt_template(self, db: Session, key: str) -> str:
-        config = db.query(Configuration).filter(Configuration.key == key).first()
-        if not config:
-            raise ValueError("Prompt template not found in the database.")
-        return str(config.value)
-
-    def update_prompt(self, template: str, door_type: str, priorities: list, user_request: str) -> str:
-        return template.format(door_type=door_type, priorities=", ".join(priorities), user_request=user_request)
-
     def process_photo(self, photo_file, door_type: str, priorities: list, user_request: str, db: Session):
-        prompt = self.create_prompt(db, door_type, priorities, user_request)
+        # prompt = self.create_prompt(db, door_type, priorities, user_request)
+        prompt = self.get_prompt_template(db)
+        prompt = self.update_prompt(template=prompt, question=user_request, priorities=priorities, door_type=door_type)
         base64_image = self.prepare_image(photo_file)
-        response_content = self.send_request(prompt, base64_image)
+        response_content = self._send_request(prompt, base64_image)
         photo_url = self.save_image(photo_file)
         self.store_interaction(db, prompt, response_content, photo_url)
         return response_content
 
-    def create_prompt(self, db: Session, door_type: str, priorities: list, user_request: str) -> str:
-        prompt_template = self.get_prompt_template(db, "photo_prompt")
-        prompt = self.update_prompt(prompt_template, door_type, priorities, user_request)
-        logger.info(f"Generated prompt: {prompt}")
-        return prompt
-
-    def prepare_image(self, photo_file) -> str:
-        image = Image.open(photo_file).convert("RGB")
-        image = image.resize((600, 600))
-        buffered = BytesIO()
-        image.save(buffered, format="JPEG")
-        buffered.seek(0)
-        return base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-    def send_request(self, prompt: str, base64_image: str) -> str:
+    def _send_request(self, prompt: str, base64_image: str) -> str:
         response = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -70,14 +48,22 @@ class ChatGPTVision:
         )
         return response.choices[0].message.content
 
+    def store_interaction(self, db: Session, prompt: str, response: str, photo_url: str):
+        interaction = ChatGPTInteraction(prompt=prompt, response=response, photo_url=photo_url)
+        db.add(interaction)
+        db.commit()
+
+    def prepare_image(self, photo_file) -> str:
+        image = Image.open(photo_file).convert("RGB")
+        image = image.resize((600, 600))
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        buffered.seek(0)
+        return base64.b64encode(buffered.getvalue()).decode('utf-8')
+
     def save_image(self, photo_file) -> str:
         image = Image.open(photo_file).convert("RGB")
         unique_filename = f"{uuid.uuid4()}.jpg"  # Generate a unique filename using uuid4
         image_path = os.path.join(self.image_storage_path, unique_filename)
         image.save(image_path, format="JPEG")
         return f"{MEDIA_URL}{unique_filename}"  # Construct the URL using MEDIA_URL
-
-    def store_interaction(self, db: Session, prompt: str, response: str, photo_url: str):
-        interaction = ChatGPTInteraction(prompt=prompt, response=response, photo_url=photo_url)
-        db.add(interaction)
-        db.commit()

@@ -27,18 +27,36 @@ async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities:
                     response = await response.json()
                     return response.get("result")
                 else:
-                    response = await response.json()
-                    return f"Failed to process photo. Status code: {response.status}"
+                    error = await response.json()
+                    logger.error(f"Failed to process question. Status code: {response.status}, error: {error}")
+                    return f"Failed to process йгуыешщт. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the photo processing service: {str(e)}"
 
 
 async def process_question(door_type: str, priorities: list, user_request: str, user_id: int) -> str:
-    return "Answer for the given question"  # TODO: Implement the logic to process the question and return answer
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(f"{FASTAPI_URL}/process_question", data={"question": question}) as response:
-    #         return await response.text()
+    url = f"{BACKEND_URL}/api/chatgpt/question"
 
+    # Prepare the data as a JSON payload
+    json_data = {
+        'door_type': door_type,
+        'priorities': priorities,
+        'user_request': user_request,
+        'user_id': user_id
+    }
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=json_data) as response:
+                if response.status == 200:
+                    response = await response.json()
+                    return response.get("result")
+                else:
+                    error = await response.json()
+                    logger.error(f"Failed to process question. Status code: {response.status}, error: {error}")
+                    return f"Failed to process question. Status code: {response.status}"
+        except aiohttp.ClientError as e:
+            return f"Error connecting to the question processing service: {str(e)}"
 
 
 async def manager_register(identifier, chat_id) -> ClientResponse:

@@ -33,10 +33,13 @@ async def process_faq_question(message: types.Message, state: FSMContext):
 
     # Retrieve user interaction data from the state
     user_data = await state.get_data()
+    processing_message = await message.answer("Обрабатываю ваш вопрос, пожалуйста, подождите...")
+
     response = await process_question(door_type=user_data.get('door_type', ''),
                                 priorities=user_data.get('priorities', []),
                                 user_request=question,
                                 user_id=message.from_user.id)
+    await processing_message.delete()
     await state.update_data(gpt_answer=response)
 
     await message.answer(response)
