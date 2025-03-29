@@ -79,7 +79,7 @@
 
             try {
                 // Отправляем данные на сервер
-                const response = await fetch("/admin/login", {
+                const response = await fetch("/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -95,8 +95,6 @@
 
                 // Устанавливаем куки с access_token
                 document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; SameSite=Lax`;
-                // console.log("Token is", data.access_token)
-                // console.log("cookie are", document.cookie)
                 window.location.href = "/admin";
             } catch (error) {
                 alert("Login failed. Please check your credentials.");

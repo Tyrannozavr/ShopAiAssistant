@@ -34,7 +34,7 @@ class TokenData(BaseModel):
     user_id: int
     identifier: str
     username: str
-    city: str
+    city: str | None = None
     is_staff: bool = False
     is_admin: bool = False
     chat_id: str | None = None

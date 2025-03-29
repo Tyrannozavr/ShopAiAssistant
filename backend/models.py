@@ -19,7 +19,7 @@ class Manager(Base):
     identifier = Column(String, unique=True, index=True, default=lambda: str(uuid.uuid4()))
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    city_id = Column(Integer, ForeignKey('cities.id'), nullable=False)
+    city_id = Column(Integer, ForeignKey('cities.id'), nullable=True)
     is_staff = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     chat_id = Column(String, unique=True, nullable=True)
