@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import RedirectResponse
 
-from core.logging_config import logger
 from depends.auth import get_user_by_token
 from depends.db import get_db
-from schemas import TokenData
+from schemas.manager import TokenData
 from errors.admin import AccessForbiddenException
 
 class AdminMiddleware(BaseHTTPMiddleware):

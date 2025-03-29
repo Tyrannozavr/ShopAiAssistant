@@ -25,7 +25,7 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
         file_id = message.photo[-1].file_id
     elif message.document:
         file_id = message.document.file_id
-
+    await state.update_data(file_id=file_id)
     if file_id:
         file_info = await bot.get_file(file_id)
         photo_file = await bot.download_file(file_info.file_path)

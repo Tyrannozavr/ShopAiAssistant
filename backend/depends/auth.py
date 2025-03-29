@@ -1,9 +1,9 @@
-from fastapi import Depends, HTTPException, Cookie, Header
+from fastapi import Depends, HTTPException, Cookie
 from fastapi.security import OAuth2PasswordBearer
 
 from models import Manager
 from services.token_service import decode_access_token
-from schemas import TokenData
+from schemas.manager import TokenData
 from typing import Annotated
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
