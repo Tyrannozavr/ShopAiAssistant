@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
-from app.handlers import contacts
+from handlers import contacts
 from config import BOT_TOKEN
 from handlers import start, door_selection, faq, photo
 
@@ -26,13 +26,14 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def main() -> None:
-    # Initialize Bot instance with default bot properties which will be passed to all API calls
-    bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
-    # And the run events dispatching
+    # Delete any existing webhook
+    await bot.delete_webhook(drop_pending_updates=True)
+    
+    logging.info("Starting bot with long polling...")
+    # Start polling
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

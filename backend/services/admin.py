@@ -6,15 +6,14 @@ from starlette_admin.fields import HasOne, HasMany
 from starlette_admin import BaseField
 from dataclasses import dataclass
 from starlette_admin.contrib.sqla import Admin as BaseAdmin
-
-
-@dataclass
-class CustomIdentifierField(BaseField):
-    render_function_key: str = "customIdentifierRender"
-
 from db import engine
 from models import Configuration
 from models import Manager, City
+
+@dataclass
+class InviteField(BaseField):
+    render_function_key: str = "inviteRender"
+
 
 
 class CityAdmin(ModelView):
@@ -40,7 +39,7 @@ class ManagerAdmin(ModelView):
         "is_staff",
         "is_admin",
         "chat_id",
-        CustomIdentifierField("custom_identifier", label="Custom Identifier"),
+        InviteField("invite", label="Invite"),
     ]
 
 
