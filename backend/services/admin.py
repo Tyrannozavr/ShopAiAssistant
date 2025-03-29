@@ -14,6 +14,9 @@ from models import Manager, City
 class InviteField(BaseField):
     render_function_key: str = "inviteRender"
 
+@dataclass
+class CityInviteField(BaseField):
+    render_function_key: str = "cityInviteRender"
 
 
 class CityAdmin(ModelView):
@@ -23,6 +26,7 @@ class CityAdmin(ModelView):
         "id",
         "name",
         HasMany("managers", label="Managers", identity="manager"),
+        CityInviteField("city_invite", label="City Invite"),
     ]
 
 
@@ -54,10 +58,12 @@ class ConfigurationAdmin(ModelView):
     ]
 
 
+import time
+
 class Admin(BaseAdmin):
     def custom_render_js(self, request: Request) -> Optional[str]:
-        return request.url_for("static", path="js/custom_render.js")
 
+        return str(request.url_for("static", path="js/manager_render.js"))
 admin = Admin(engine, title="Your Admin Title")
 
 admin.add_view(CityAdmin(City))
