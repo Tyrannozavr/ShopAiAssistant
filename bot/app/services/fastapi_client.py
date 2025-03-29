@@ -42,7 +42,7 @@ async def process_question(door_type: str, priorities: list, user_request: str, 
         'door_type': door_type,
         'priorities': priorities,
         'user_request': user_request,
-        'user_id': user_id
+        'user_id': str(user_id)
     }
 
     async with aiohttp.ClientSession() as session:
@@ -59,7 +59,7 @@ async def process_question(door_type: str, priorities: list, user_request: str, 
             return f"Error connecting to the question processing service: {str(e)}"
 
 
-async def manager_register(identifier, chat_id) -> ClientResponse:
+async def manager_register(identifier, chat_id) -> str:
     url = f"{BACKEND_URL}/api/manager/register_chat"
     data = {
         "identifier": identifier,

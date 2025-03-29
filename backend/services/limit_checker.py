@@ -17,17 +17,17 @@ def check_limit(user_id: str, db: Session, limit_key: str, limit_value: int) -> 
         ChatGPTInteraction.datetime >= start_of_day,
         ChatGPTInteraction.datetime <= end_of_day
     )
-    logger.info(f"22Count is {query.count()}")
+    logger.debug(f"22Count is {query.count()}")
     # Adjust the query based on the limit_key
     if limit_key == "photo":
         query = query.filter(ChatGPTInteraction.photo_url.isnot(None))
     elif limit_key == "question":
         query = query.filter(ChatGPTInteraction.photo_url.is_(None))
-    logger.info(f"11Count is {query.count()}")
+    logger.debug(f"11Count is {query.count()}")
 
     # Count interactions for the user today
     interaction_count = query.count()
-    logger.info(f"User {user_id} has {interaction_count} interactions today for {limit_key}")
+    logger.debug(f"User {user_id} has {interaction_count} interactions today for {limit_key}")
 
     # Check if the user has reached the limit
     return interaction_count >= limit_value

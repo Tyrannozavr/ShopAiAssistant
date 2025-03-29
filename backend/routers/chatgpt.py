@@ -29,7 +29,7 @@ async def process_photo(
         joke = get_random_joke(db)
         return {"message": "Daily limit reached", "result": joke}
 
-    logger.info(f"Processing photo for user {user_id}")
+    logger.debug(f"Processing photo for user {user_id}")
     result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
                                            priorities=priorities, user_request=user_request, db=db)
     return {"result": result}
@@ -50,7 +50,8 @@ async def process_question(
         joke = get_random_joke(db)
         return {"message": "Daily limit reached", "result": joke}
 
-    logger.info(f"Processing question for user {user_id}")
+    logger.debug(f"Processing question for user {user_id}")
+    # return "Helllworld"
     result = chatgpt_service.get_response(user_id=user_id, door_type=door_type, priorities=priorities,
                                           question=user_request, db=db)
     return {"result": result}

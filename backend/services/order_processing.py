@@ -14,7 +14,7 @@ def select_manager_for_order(order: OrderSchema, db: Session) -> str:
     ).first()
 
     if manager:
-        logger.info(f"Selected manager {manager.username} for city {order.city}")
+        logger.debug(f"Selected manager {manager.username} for city {order.city}")
         return manager.chat_id
 
     # If no manager found, try to find a manager without a city
@@ -25,7 +25,7 @@ def select_manager_for_order(order: OrderSchema, db: Session) -> str:
     ).first()
 
     if manager:
-        logger.info(f"Selected manager {manager.username} without specific city")
+        logger.debug(f"Selected manager {manager.username} without specific city")
         return manager.chat_id
 
     # Log an error if no suitable manager is found
@@ -77,7 +77,7 @@ async def process_order(order: OrderSchema, db: Session):
     # Generate the order message
     order_message = generate_order_message(order)
 
-    logger.info(f"Generated order message for chat_id {chat_id}: {order_message}")
+    logger.debug(f"Generated order message for chat_id {chat_id}: {order_message}")
     if chat_id:
         await send_order_notification(chat_id=chat_id, message=order_message, file_id=order.file_id)
 
