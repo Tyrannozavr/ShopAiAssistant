@@ -1,7 +1,10 @@
 import os
 import base64
+import uuid
 from openai import OpenAI
 from sqlalchemy.orm import Session
+
+from core.Config import MEDIA_ROOT, MEDIA_URL
 from core.logging_config import logger
 from models import Configuration, ChatGPTInteraction
 from PIL import Image
@@ -13,7 +16,7 @@ class ChatGPT:
             api_key=os.getenv("PROXYAPI_API_KEY"),  # Ensure you have this key in your environment variables
             base_url="https://api.proxyapi.ru/openai/v1"
         )
-        self.image_storage_path = "path/to/store/images"  # Define where to store images
+        self.image_storage_path = MEDIA_ROOT  # Define where to store images
 
     def get_prompt_template(self, db: Session, key: str) -> str:
         config = db.query(Configuration).filter(Configuration.key == key).first()
@@ -40,7 +43,7 @@ class ChatGPT:
 
     def prepare_image(self, photo_file) -> str:
         image = Image.open(photo_file).convert("RGB")
-        image = image.resize((700, 700))
+        image = image.resize((600, 600))
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
         buffered.seek(0)
@@ -69,9 +72,10 @@ class ChatGPT:
 
     def save_image(self, photo_file) -> str:
         image = Image.open(photo_file).convert("RGB")
-        image_path = os.path.join(self.image_storage_path, "saved_image.jpg")
+        unique_filename = f"{uuid.uuid4()}.jpg"  # Generate a unique filename using uuid4
+        image_path = os.path.join(self.image_storage_path, unique_filename)
         image.save(image_path, format="JPEG")
-        return f"/static/images/saved_image.jpg"  # Adjust the URL path as needed
+        return f"{MEDIA_URL}{unique_filename}"  # Construct the URL using MEDIA_URL
 
     def store_interaction(self, db: Session, prompt: str, response: str, photo_url: str):
         interaction = ChatGPTInteraction(prompt=prompt, response=response, photo_url=photo_url)

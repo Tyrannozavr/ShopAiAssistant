@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from . import admin, chatgpt
+from . import chatgpt
 from . import auth
 from . import manager
 from . import orders  # Import the orders router

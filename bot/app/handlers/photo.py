@@ -32,11 +32,23 @@ async def photo_handler(message: types.Message, state: FSMContext, bot: Bot):
         user_data = await state.get_data()
         user_request = message.caption or message.text or ""
 
+        # Send a processing message or animation
+        processing_message = await message.answer("Обрабатываю ваше фото, пожалуйста, подождите...")
+
+        # Optionally, send an animation (e.g., a loading GIF)
+        # You need to have a file_id or URL of the GIF
+        # await bot.send_animation(chat_id=message.chat.id, animation='file_id_or_url_of_gif')
+
         # Process the photo to get advice
         response = await process_photo(photo_file,
-                                     user_request=user_request,
-                                     door_type=user_data.get('door_type', ''),
-                                     priorities=user_data.get('priorities', '') if 'priorities' in user_data else [])  # Extract priorities from the state if available, otherwise use an empty list)
+                                       user_request=user_request,
+                                       door_type=user_data.get('door_type', ''),
+                                       priorities=user_data.get('priorities', '') if 'priorities' in user_data else [],
+                                       user_id=message.from_user.id)
+
+        # Delete the processing message after receiving the response
+        await processing_message.delete()
+
         await message.answer(response, reply_markup=interaction_kb)
         # After processing the photo, transition to the next step
         await message.answer("Хотите вызвать замерщика?", reply_markup=interaction_kb)

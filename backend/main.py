@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
+import os
 from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 
+from core.Config import MEDIA_URL, MEDIA_ROOT
 from core.logging_config import logger  # Import the logger
 
 # Example usage
@@ -18,6 +20,9 @@ admin.mount_to(app)
 
 # Mount the static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Mount the media directory to serve files
+app.mount(MEDIA_URL, StaticFiles(directory=MEDIA_ROOT), name="media")
 
 app.add_middleware(AdminMiddleware)
 app.include_router(main_router.router, prefix="/api")

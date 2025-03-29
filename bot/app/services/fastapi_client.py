@@ -6,7 +6,7 @@ from aiohttp import FormData, ClientResponse
 from app.config import BACKEND_URL
 
 
-async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities: list, user_request: str) -> str:
+async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities: list, user_request: str, user_id: int) -> str:
     url = f"{BACKEND_URL}/api/chatgpt/photo"
     
     # Create a FormData object to handle file uploads
@@ -14,6 +14,7 @@ async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities:
     form_data.add_field('door_type', door_type)
     form_data.add_field('priorities', ','.join(priorities))
     form_data.add_field('user_request', user_request)
+    form_data.add_field('user_id', str(user_id))
     
     if photo_file:
         form_data.add_field('photo', photo_file, filename='photo.jpg', content_type='image/jpeg')
@@ -22,8 +23,10 @@ async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities:
         try:
             async with session.post(url, data=form_data) as response:
                 if response.status == 200:
-                    return await response.text()
+                    response = await response.json()
+                    return response.get("result")
                 else:
+                    response = await response.json()
                     return f"Failed to process photo. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the photo processing service: {str(e)}"

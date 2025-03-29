@@ -25,11 +25,10 @@ async def login(
         username: str = Body(),
         password: str = Body(),
 ):
+    username = username.strip()
     find_user = db.query(Manager).filter(Manager.username == username).first()
-
     if not find_user:
         raise UserNotFoundException()
-
     if not verify_password(password, find_user.hashed_password):
         raise InvalidCredentialsException()
 
