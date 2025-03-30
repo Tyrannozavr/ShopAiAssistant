@@ -100,7 +100,9 @@ async def save_order(order_data: dict) -> str:
         "gpt_answer": order_data.get("gpt_answer", ""),
         "photo_url": order_data.get("photo_url", ""),
         "priorities": order_data.get("priorities", []),
-        "user_request": order_data.get("user_request", "")
+        "user_request": order_data.get("user_request", ""),
+        "file_id": order_data.get("file_id", ""),
+        "is_photo": order_data.get("is_photo", False),
     }
 
     async with aiohttp.ClientSession() as session:

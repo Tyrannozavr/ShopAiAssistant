@@ -17,7 +17,8 @@ class Order(BaseModel):
     user_request: Optional[str] = None
     gpt_answer: Optional[str] = None
     call_measurer: Optional[bool] = False
-    file_id: Optional[str] = None
+    file_id: Optional[str] = None,
+    is_photo: Optional[bool] = True,
 
     class Config:
         json_schema_extra = {
