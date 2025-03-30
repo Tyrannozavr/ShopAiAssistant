@@ -16,7 +16,8 @@ services:
     expose:
       - "8000"
     volumes:
-      - ./logs:/app/logs
+      - .backend/logs:/app/logs
+      - ./backend/static:/app/static
     depends_on:
       - db
 
@@ -37,5 +38,6 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./backend/static:/app/static
     depends_on:
       - backend
