@@ -16,8 +16,8 @@ services:
     expose:
       - "8000"
     volumes:
-      - .backend/logs:/app/logs
-      - ./backend/static:/app/static
+      - .backend/logs:/logs
+      - ./backend/static:/static
     depends_on:
       - db
 
