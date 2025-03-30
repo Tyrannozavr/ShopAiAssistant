@@ -10,12 +10,17 @@ class TelegramNotificationService:
             raise ValueError("Telegram bot token is not set in environment variables.")
         self.bot = Bot(token=self.bot_token)
 
-    async def send_message(self, chat_id: str, message: str, file_id: str = None):
+    async def send_message(self, chat_id: str, message: str, file_id: str = None, is_photo: bool = True):
         try:
             if file_id:
-                # Send the file if file_id is provided
-                await self.bot.send_document(chat_id=chat_id, document=file_id, caption=message)
-                logger.debug(f"File sent to chat_id {chat_id} with file_id {file_id}: {message}")
+                if is_photo:
+                    # Send the photo if is_photo is True
+                    await self.bot.send_photo(chat_id=chat_id, photo=file_id, caption=message)
+                    logger.debug(f"Photo sent to chat_id {chat_id} with file_id {file_id}: {message}")
+                else:
+                    # Send the document if is_photo is False
+                    await self.bot.send_document(chat_id=chat_id, document=file_id, caption=message)
+                    logger.debug(f"Document sent to chat_id {chat_id} with file_id {file_id}: {message}")
             else:
                 # Send a text message if no file_id is provided
                 await self.bot.send_message(chat_id=chat_id, text=message)
@@ -27,4 +32,4 @@ class TelegramNotificationService:
 # if __name__ == "__main__":
 #     service = TelegramNotificationService()
 #     service.send_message(chat_id="123456789", message="Hello, this is a test message!")
-#     service.send_message(chat_id="123456789", message="Here is your document.", file_id="your_file_id_here")
+#     service.send_message(chat_id="123456789", message="Here is your document.", file_id="your_file_id_here", is_photo=False)
