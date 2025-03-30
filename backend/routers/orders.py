@@ -1,12 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 
-from depends.db import get_db
+from depends.db import db_dep
+from schemas.order import Order
 from services.order_processing import process_order
 
-from schemas.order import Order
-
 router = APIRouter()
+
 
 @router.get("/")
 async def get_orders():
@@ -19,10 +18,10 @@ class LocalSession:
 
 
 @router.post("/")
-async def create_order(order: Order, db: Session = Depends(get_db)):
+async def create_order(db: db_dep, order: Order):
     # Mocked response for creating an order
     if not order:
         raise HTTPException(status_code=400, detail="Invalid order data")
     result = await process_order(order=order, db=db)
-    
+
     return {"message": "Order created successfully", "order": order, "processing_result": result}

@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from services.auth_service import verify_password
 from services.token_service import create_access_token
 from repositories.manager import get_manager_by_username
-from depends.db import get_db
+from depends.db import db_dep
 
 router = APIRouter()
 
 @router.post("/login")
-async def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+async def login(db: db_dep, username: str = Form(...), password: str = Form(...)):
     manager = get_manager_by_username(db, username)
     if not manager or not verify_password(password, manager.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid username or password")

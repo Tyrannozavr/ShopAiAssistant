@@ -1,9 +1,10 @@
 from typing import List
+
 from fastapi import APIRouter, Depends, Body, UploadFile
-from sqlalchemy.orm import Session
+
 from core.logging_config import logger
 from depends.chatgpt import get_chatgpt_vision_service, get_chatgpt_service
-from depends.db import get_db
+from depends.db import db_dep
 from models import Configuration
 from services.chatgpt import ChatGPT
 from services.chatgptvision import ChatGPTVision
@@ -11,14 +12,15 @@ from services.limit_checker import check_limit, get_random_joke
 
 router = APIRouter()
 
+
 @router.post("/photo")
 async def process_photo(
+        db: db_dep,
         photo: UploadFile,
         door_type: str = Body(...),
         priorities: List[str] = Body(...),
         user_request: str = Body(...),
         user_id: str = Body(...),
-        db: Session = Depends(get_db),
         chatgpt_service: ChatGPTVision = Depends(get_chatgpt_vision_service)
 ):
     photo_limit = db.query(Configuration).filter(Configuration.key == "photo_limit").first()
@@ -37,11 +39,11 @@ async def process_photo(
 
 @router.post("/question")
 async def process_question(
+        db: db_dep,
         door_type: str = Body(...),
         priorities: List[str] = Body(...),
         user_request: str = Body(...),
         user_id: str = Body(...),
-        db: Session = Depends(get_db),
         chatgpt_service: ChatGPT = Depends(get_chatgpt_service)
 ):
     question_limit = db.query(Configuration).filter(Configuration.key == "question_limit").first()
