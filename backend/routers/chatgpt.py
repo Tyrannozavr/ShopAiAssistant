@@ -24,7 +24,7 @@ async def process_photo(
         chatgpt_service: ChatGPTVision = Depends(get_chatgpt_vision_service)
 ):
     photo_limit = db.query(Configuration).filter(Configuration.key == "photo_limit").first()
-    photo_limit = int(photo_limit.value)
+    photo_limit = int(photo_limit.value, 3)
 
     # Check if the user has reached the photo limit
     if check_limit(user_id=user_id, db=db, limit_key="photo", limit_value=photo_limit):
@@ -47,7 +47,7 @@ async def process_question(
         chatgpt_service: ChatGPT = Depends(get_chatgpt_service)
 ):
     question_limit = db.query(Configuration).filter(Configuration.key == "question_limit").first()
-    question_limit = int(question_limit.value)
+    question_limit = int(question_limit.value, 5)
     if check_limit(user_id=user_id, db=db, limit_key="question", limit_value=question_limit):
         joke = get_random_joke(db)
         return {"message": "Daily limit reached", "result": joke}

@@ -27,9 +27,14 @@ async def process_photo(photo_file: BinaryIO | None, door_type: str, priorities:
                     response = await response.json()
                     return response.get("result")
                 else:
-                    error = await response.json()
-                    logger.error(f"Failed to process question. Status code: {response.status}, error: {error}")
-                    return f"Failed to process йгуыешщт. Status code: {response.status}"
+                    # Check if the response is JSON
+                    if response.content_type == 'application/json':
+                        error = await response.json()
+                        logger.error(f"Failed to process photo. Status code: {response.status}, error: {error}")
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"Failed to process photo. Status code: {response.status}, error: {error_text}")
+                    return f"Failed to process photo. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the photo processing service: {str(e)}"
 
