@@ -1,6 +1,6 @@
 const BOT_NAME = "dmivbot"
 Object.assign(render, {
-  inviteRender: function render(data, type, full, meta, fieldOptions) {
+  inviteRender: function render(data, type, full) { // Removed unused parameters
     const inviteLink = `https://t.me/${BOT_NAME}?start=manager_${full.identifier}`;
     return `
       <div>
@@ -22,7 +22,13 @@ Object.assign(render, {
             const button = this;
             button.style.backgroundColor='#388E3C';
             button.innerText='Copied';
-            navigator.clipboard.writeText('${inviteLink}');
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText('${inviteLink}').catch(err => {
+                console.error('Could not copy text: ', err);
+              });
+            } else {
+              console.warn('Clipboard API not supported');
+            }
             setTimeout(() => {
               button.style.backgroundColor='#4CAF50';
               button.innerText='Invite';
@@ -34,7 +40,7 @@ Object.assign(render, {
       </div>
     `;
   },
-  cityInviteRender: function render(data, type, full, meta, fieldOptions) {
+  cityInviteRender: function render(data, type, full) { // Removed unused parameters
     const cityInviteLink = `https://t.me/${BOT_NAME}?start=utm_${full.name}`;
     return `
       <div>
@@ -56,7 +62,13 @@ Object.assign(render, {
             const button = this;
             button.style.backgroundColor='#388E3C';
             button.innerText='Copied';
-            navigator.clipboard.writeText('${cityInviteLink}');
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText('${cityInviteLink}').catch(err => {
+                console.error('Could not copy text: ', err);
+              });
+            } else {
+              console.warn('Clipboard API not supported');
+            }
             setTimeout(() => {
               button.style.backgroundColor='#4CAF50';
               button.innerText='Invite';
