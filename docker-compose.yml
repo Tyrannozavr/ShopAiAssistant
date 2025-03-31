@@ -17,6 +17,14 @@ services:
       timeout: 5s
       retries: 5
 
+  telegram_bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
   migrations:
     build: ./backend
     command: alembic upgrade head
