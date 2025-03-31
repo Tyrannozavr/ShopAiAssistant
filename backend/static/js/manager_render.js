@@ -1,4 +1,4 @@
-const BOT_NAME = "dmivbot"
+const BOT_NAME = "Lidailida_Bot"
 Object.assign(render, {
   inviteRender: function render(data, type, full) {
     const inviteLink = `https://t.me/${BOT_NAME}?start=manager_${full.identifier}`;
