@@ -15,16 +15,13 @@ class TelegramNotificationService:
             if file_id:
                 if is_photo:
                     # Send the photo if is_photo is True
-                    await self.bot.send_photo(chat_id=chat_id, photo=file_id, caption=message)
+                    await self.bot.send_photo(chat_id=chat_id, photo=file_id)
                     logger.debug(f"Photo sent to chat_id {chat_id} with file_id {file_id}: {message}")
                 else:
                     # Send the document if is_photo is False
-                    await self.bot.send_document(chat_id=chat_id, document=file_id, caption=message)
+                    await self.bot.send_document(chat_id=chat_id, document=file_id)
                     logger.debug(f"Document sent to chat_id {chat_id} with file_id {file_id}: {message}")
-            else:
-                # Send a text message if no file_id is provided
-                await self.bot.send_message(chat_id=chat_id, text=message)
-                logger.debug(f"Message sent to chat_id {chat_id}: {message}")
+            await self.bot.send_message(chat_id=chat_id, text=message)
         except TelegramError as e:
             logger.error(f"Failed to send message to chat_id {chat_id}: {e}")
 
