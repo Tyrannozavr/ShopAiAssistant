@@ -19,6 +19,6 @@ COPY . .
 # Wait for the database to be ready before running migrations
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
-CMD ["/bin/sh", "-c", "/wait-for-it.sh db alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+#CMD ["/bin/sh", "-c", "/wait-for-it.sh db alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
 #CMD ["/bin/sh", "-c", "/wait-for-it.sh db alembic upgrade head"]
-#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
