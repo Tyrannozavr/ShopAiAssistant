@@ -9,6 +9,7 @@ from models import Configuration
 from services.chatgpt import ChatGPT
 from services.chatgptvision import ChatGPTVision
 from services.limit_checker import check_limit, get_random_joke
+from ast import literal_eval
 
 router = APIRouter()
 
@@ -38,13 +39,12 @@ async def process_photo(
 
     logger.debug(f"Processing photo for user {user_id}")
     img_size = db.query(Configuration).filter(Configuration.key == "image_size").first()
-    img_size = eval(img_size.value)
     if img_size is None:
         img_size = Configuration(key="image_size", value="(600, 600)")
         db.add(img_size)
         db.commit()
         db.refresh(img_size)
-        img_size = eval(img_size.value)
+    img_size = literal_eval(img_size.value)
     img_height, img_width = img_size
     result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
                                            priorities=priorities, user_request=user_request, db=db,
