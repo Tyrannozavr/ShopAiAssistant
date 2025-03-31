@@ -24,7 +24,12 @@ async def process_photo(
         chatgpt_service: ChatGPTVision = Depends(get_chatgpt_vision_service)
 ):
     photo_limit = db.query(Configuration).filter(Configuration.key == "photo_limit").first()
-    photo_limit = int(photo_limit.value) if photo_limit else 3
+    if photo_limit is None:
+        photo_limit = Configuration(key="photo_limit", value="3")
+        db.add(photo_limit)
+        db.commit()
+        db.refresh(photo_limit)
+    photo_limit = int(photo_limit.value)
 
     # Check if the user has reached the photo limit
     if check_limit(user_id=user_id, db=db, limit_key="photo", limit_value=photo_limit):
@@ -32,8 +37,18 @@ async def process_photo(
         return {"message": "Daily limit reached", "result": joke}
 
     logger.debug(f"Processing photo for user {user_id}")
+    img_size = db.query(Configuration).filter(Configuration.key == "image_size").first()
+    img_size = eval(img_size.value)
+    if img_size is None:
+        img_size = Configuration(key="image_size", value="(600, 600)")
+        db.add(img_size)
+        db.commit()
+        db.refresh(img_size)
+        img_size = eval(img_size.value)
+    img_height, img_width = img_size
     result = chatgpt_service.process_photo(user_id=user_id, photo_file=photo.file, door_type=door_type,
-                                           priorities=priorities, user_request=user_request, db=db)
+                                           priorities=priorities, user_request=user_request, db=db,
+                                           img_width=img_width, img_height=img_height)
     return {"result": result}
 
 
@@ -47,7 +62,12 @@ async def process_question(
         chatgpt_service: ChatGPT = Depends(get_chatgpt_service)
 ):
     question_limit = db.query(Configuration).filter(Configuration.key == "question_limit").first()
-    question_limit = int(question_limit.value) if question_limit else 5
+    if question_limit is None:
+        question_limit = Configuration(key="question_limit", value="5")
+        db.add(question_limit)
+        db.commit()
+        db.refresh(question_limit)
+    question_limit = int(question_limit.value)
     if check_limit(user_id=user_id, db=db, limit_key="question", limit_value=question_limit):
         joke = get_random_joke(db)
         return {"message": "Daily limit reached", "result": joke}

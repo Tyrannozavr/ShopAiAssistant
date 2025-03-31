@@ -17,11 +17,11 @@ class ChatGPTVision(ChatGPT):
         self.prompt_key = "photo_prompt"  # Set a different key for retrieving the prompt
         self.image_storage_path = MEDIA_ROOT  # Define where to store images
 
-    def process_photo(self, user_id: str, photo_file, door_type: str, priorities: list, user_request: str, db: Session):
-        # prompt = self.create_prompt(db, door_type, priorities, user_request)
+    def process_photo(self, db: Session, user_id: str, photo_file, door_type: str, priorities: list, user_request: str = "",
+                      img_height: int = 600, img_width: int = 600) -> str:
         prompt = self.get_prompt_template(db)
         prompt = self.update_prompt(template=prompt, question=user_request, priorities=priorities, door_type=door_type)
-        base64_image = self.prepare_image(photo_file)
+        base64_image = self.prepare_image(photo_file, img_height=img_height, img_width=img_width)
         response_content = self._send_request(prompt, base64_image)
         photo_url = self.save_image(photo_file)
         self.store_interaction(prompt=prompt, response=response_content, photo_url=photo_url, db=db, user_id=user_id)
@@ -53,9 +53,9 @@ class ChatGPTVision(ChatGPT):
         db.add(interaction)
         db.commit()
 
-    def prepare_image(self, photo_file) -> str:
+    def prepare_image(self, photo_file, img_height: int = 600, img_width: int = 600) -> str:
         image = Image.open(photo_file).convert("RGB")
-        image = image.resize((600, 600))
+        image = image.resize((img_width, img_height))
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
         buffered.seek(0)

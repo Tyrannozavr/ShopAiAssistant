@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:16-alpine
     ports:
       - "5432:5432"
     environment:
@@ -17,12 +17,12 @@ services:
       timeout: 5s
       retries: 5
 
-#  migrations:
-#    build: ./backend
-#    command: alembic upgrade head
-#    depends_on:
-#      db:
-#        condition: service_healthy
+  migrations:
+    build: ./backend
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     build:
@@ -36,8 +36,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-#      migrations:
-#        condition: service_completed_successfully
+      migrations:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/login"]
       interval: 30s

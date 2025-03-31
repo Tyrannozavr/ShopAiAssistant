@@ -15,8 +15,11 @@ class ChatGPT:
 
     def get_prompt_template(self, db: Session) -> str:
         config = db.query(Configuration).filter(Configuration.key == self.prompt_key).first()
-        if not config:
-            raise ValueError("Prompt template not found in the database.")
+        if config is None:
+            config = Configuration(key=self.prompt_key, value="Question: {question}\nPriorities: {priorities}\nDoor type: {door_type}")
+            db.add(config)
+            db.commit()
+            db.refresh(config)
         return str(config.value)
 
     def update_prompt(self, template: str, question: str, priorities: list, door_type: str) -> str:
