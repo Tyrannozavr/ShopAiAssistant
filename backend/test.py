@@ -1,15 +1,24 @@
 import asyncio
 from dotenv import load_dotenv
+
+from core.Config import settings
+from depends.db import get_db
+from services.interaction_service import InteractionService
 from services.telegram_notification import TelegramNotificationService
 
 load_dotenv()
 
 async def main():
-    notification_service = TelegramNotificationService()
-    await notification_service.send_message(chat_id="972834722",
-                                            file_id="AgACAgIAAxkBAAMHZ-ifxedoiq88BQYwqP3ZagVnXAsAArDnMRuZb0hL6ueSVuFymeEBAAMCAAN5AAM2BA",
-                                            message="Hello, this is a test message!")
-    # await notification_service.send_message(chat_id="972834722", message="Hello, this is a test message!")
+    # Initialize the service
+    session = next(get_db())
+    interaction_service = InteractionService(db=session, api_key=settings.openai_key, base_url=settings.openai_url)
 
+    # Start or continue an interaction
+    response_data = interaction_service.start_interaction(user_id="user_telegram_id",
+                                                          user_message="Хочу дверь из железа")
+
+    print("Response:", response_data["response"])
+    print(2, response_data["contact_data"])
+    print(3, response_data["summary"])
 if __name__ == "__main__":
     asyncio.run(main())
