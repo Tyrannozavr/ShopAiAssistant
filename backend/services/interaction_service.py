@@ -30,15 +30,15 @@ class InteractionService:
         )
         self.history_depth = 3
 
-    def _get_chat_history(self, telegram_id: str) -> list:
+    def _get_chat_history(self, user_id: str) -> list:
         """Получает историю диалога для пользователя"""
         return self.db.query(ChatGPTInteraction).filter(
-            ChatGPTInteraction.user_id == telegram_id
+            ChatGPTInteraction.user_id == user_id
         ).order_by(ChatGPTInteraction.datetime.desc()).limit(self.history_depth).all()
 
-    def _prepare_messages(self, telegram_id: str, user_message: str) -> list:
+    def _prepare_messages(self, user_id: str, user_message: str) -> list:
         """Подготавливает список сообщений для OpenAI API"""
-        history = self._get_chat_history(telegram_id)
+        history = self._get_chat_history(user_id)
         messages = [{"role": "system", "content": self.system_prompt}]
         response_data = None
         interaction = None
@@ -75,11 +75,11 @@ class InteractionService:
                     'summary': None
                 }
 
-    def start_interaction(self, telegram_id: str, user_message: str) -> Dict:
+    def start_interaction(self, user_id: str, user_message: str) -> Dict:
         """Основной метод для обработки взаимодействия с пользователем"""
         try:
-            messages = self._prepare_messages(telegram_id, user_message)
-            print("Prompt is ", messages)
+            messages = self._prepare_messages(user_id, user_message)
+            # print("Prompt is ", messages)
             response = self.client.chat.completions.create(
                 messages=messages,
                 model="o3-mini",  # Используйте актуальную модель
@@ -93,7 +93,7 @@ class InteractionService:
 
             # Сохраняем взаимодействие
             interaction = ChatGPTInteraction(
-                user_id=telegram_id,
+                user_id=user_id,
                 prompt=user_message,
                 response=json.dumps(response_data, ensure_ascii=False)
             )
@@ -105,7 +105,7 @@ class InteractionService:
                 print("Ура, пользователь оставил данные. Очищаем историю.", flush=True)
                 print(response_data.get('contact_data'))
                 history = self.db.query(ChatGPTInteraction).filter(
-                    ChatGPTInteraction.user_id == telegram_id and ChatGPTInteraction.is_finished == False
+                    ChatGPTInteraction.user_id == user_id and ChatGPTInteraction.is_finished == False
                 )
                 for interaction in history:
                     interaction.is_finished = True

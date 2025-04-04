@@ -1,15 +1,15 @@
+from ast import literal_eval
 from typing import List
 
 from fastapi import APIRouter, Depends, Body, UploadFile
 
 from core.logging_config import logger
-from depends.chatgpt import get_chatgpt_vision_service, get_chatgpt_service
+from depends.chatgpt import get_chatgpt_vision_service, get_chatgpt_service, interaction_service_dep
 from depends.db import db_dep
 from models import Configuration
 from services.chatgpt import ChatGPT
 from services.chatgptvision import ChatGPTVision
 from services.limit_checker import check_limit, get_random_joke
-from ast import literal_eval
 
 router = APIRouter()
 
@@ -76,4 +76,27 @@ async def process_question(
     # return "Helllworld"
     result = chatgpt_service.get_response(user_id=user_id, door_type=door_type, priorities=priorities,
                                           question=user_request, db=db)
+    return {"result": result}
+
+
+@router.post("/chat")
+async def process_question(
+        db: db_dep,
+        interaction_service: interaction_service_dep,
+        user_request: str = Body(...),
+        user_id: str = Body(...),
+):
+    question_limit = db.query(Configuration).filter(Configuration.key == "question_limit").first()
+    if question_limit is None:
+        question_limit = Configuration(key="question_limit", value="5")
+        db.add(question_limit)
+        db.commit()
+        db.refresh(question_limit)
+    question_limit = int(question_limit.value)
+    if check_limit(user_id=user_id, db=db, limit_key="question", limit_value=question_limit):
+        joke = get_random_joke(db)
+        return {"message": "Daily limit reached", "result": joke}
+
+    logger.debug(f"Processing question for user {user_id}")
+    result = interaction_service.start_interaction(user_id=user_id, user_message=user_request)
     return {"result": result}
