@@ -1,0 +1,8 @@
+http://62.113.36.252/login
+
+login doorbotadmin
+password asfFDF8irj)
+
+```bash
+sshpass -p 'VcsreLFC3' ssh root@62.113.36.252
+```
