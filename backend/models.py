@@ -39,6 +39,7 @@ class ChatGPTInteraction(Base):
     prompt = Column(String, nullable=False)
     response = Column(String, nullable=False)
     photo_url = Column(String, nullable=True)  # Store the URL of the photo
+    is_finished = Column(Boolean, default=False)  # Indicates if the interaction is finished
 
 class Jokes(Base):
     __tablename__ = 'jokes'

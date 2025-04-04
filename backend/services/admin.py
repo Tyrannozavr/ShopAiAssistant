@@ -62,6 +62,7 @@ class ChatGPTInteractionAdmin(ModelView):
         "prompt",
         "response",
         "photo_url",
+        "is_finished"
     ]
 
 class OrderAdmin(ModelView):

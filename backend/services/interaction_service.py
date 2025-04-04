@@ -9,17 +9,24 @@ class InteractionService:
     def __init__(self, db: Session, api_key: str, base_url: str):
         self.db = db
         self.client = OpenAI(api_key=api_key, base_url=base_url)
-        self.default_prompt = ("Ты консультант по дверям. Разговаривай по-человечески: понятно, с заботой. В ходе диалога "
+        self.default_prompt = ("Выступи в роли специалиста по продаже дверей."
+                               " Разговаривай по-человечески: понятно, с заботой. В ходе диалога "
                                "постарайся помочь пользователю определиться с выбором двери, узнать его контактные данные"
-                               "чтобы он мог продолжить общение с менеджером")
+                               "чтобы он мог продолжить общение с менеджером. Указывай контактные данные только если пользователь"
+                               "оставил их в последнем сообщении.")
         self.system_prompt = (
                 self.default_prompt + "Отвечай строго в JSON формате: "
-                                      "{'response': твой ответ пользователю, 'contact_data': null или контактные данные если пользователь их предоставил, "
-                                      "'summary': null или краткое описание потребностей пользователя (заполняется ТОЛЬКО когда пользователь предоставил контактные данные, "
-                                      "содержит ключевую информацию: тип двери, требования, бюджет, сроки и другие важные детали из диалога)}. "
-                                      "Формат summary должен быть кратким и информативным для менеджера. "
-                                      "Не добавляй никакого текста вокруг JSON. "
-                                      "Если контактные данные не предоставлены, summary должен быть null."
+                                      "{'response': твой ответ пользователю, 'contact_data': null или контактные данные, "
+                                      "'summary': структурированная сводка всех ключевых требований из диалога}. "
+
+                                      "Формат summary: кратко, только факты для менеджера: "
+                                      "- Основной запрос (дверь входная/межкомнатная, материал)"
+                                      "- Конкретные параметры (размеры, особенности)"
+                                      "- Бюджет и сроки если указаны"
+                                      "- Особые пожелания"
+
+                                      "Обновляй summary при каждом сообщении, сохраняя все важные детали. "
+                                      "Не добавляй текст вокруг JSON."
         )
         self.history_depth = 3
 
@@ -33,15 +40,21 @@ class InteractionService:
         """Подготавливает список сообщений для OpenAI API"""
         history = self._get_chat_history(telegram_id)
         messages = [{"role": "system", "content": self.system_prompt}]
-
+        response_data = None
+        interaction = None
         for interaction in history:
             messages.append({"role": "user", "content": interaction.prompt})
             try:
                 response_data = json.loads(interaction.response)
                 messages.append({"role": "assistant", "content": response_data.get('response', '')})
+
             except json.JSONDecodeError:
                 messages.append({"role": "assistant", "content": interaction.response})
 
+        if interaction and not interaction.is_finished and response_data:
+            summary = response_data.get('summary', None)
+            if summary:
+                messages.append({"role": "assistant", "content": summary})
         messages.append({"role": "user", "content": user_message})
         return messages
 
@@ -89,9 +102,14 @@ class InteractionService:
 
             # Если есть контактные данные, очищаем историю
             if response_data.get('contact_data'):
-                self.db.query(ChatGPTInteraction).filter(
-                    ChatGPTInteraction.user_id == telegram_id
-                ).delete()
+                print("Ура, пользователь оставил данные. Очищаем историю.", flush=True)
+                print(response_data.get('contact_data'))
+                history = self.db.query(ChatGPTInteraction).filter(
+                    ChatGPTInteraction.user_id == telegram_id and ChatGPTInteraction.is_finished == False
+                )
+                for interaction in history:
+                    interaction.is_finished = True
+                    self.db.add(interaction)
                 self.db.commit()
 
             return response_data
