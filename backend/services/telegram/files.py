@@ -115,7 +115,7 @@ transcriber = TelegramAudioTranscriber(
     base_url=settings.openai_url
 )
 
-# file_id = "AwACAgIAAxkBAAONZ_D6ctr-ioX4OqCHoUhzgU_wOv8AAnxvAAKquolLTrmcVXlGvB42BA"
+# file_id = "AwACAgIAAxkBAAONZ_D6ctr-ioX4OqCHoUhzgU_wOv8AAnxvAAKquolLTrmcVXlGvB42BA" # type - voice
 # transcription_text = transcriber.file_id_to_text(file_id)
 # print("Text is ", transcription_text)
 
@@ -126,6 +126,7 @@ describer = TelegramImageDescriber(
     base_url=settings.openai_url
 )
 
-image_file_id = "BQACAgIAAxkBAAOOZ_D8DghUjHK__SDZXGdmVZTBszcAAolvAAKquolLelzyevmr4zM2BA"  # type -document
+# image_file_id = "BQACAgIAAxkBAAOOZ_D8DghUjHK__SDZXGdmVZTBszcAAolvAAKquolLelzyevmr4zM2BA"  # type -document
+image_file_id = "AgACAgIAAxkBAAOPZ_D-0kwkDwOf0M0fAtoCP1lek00AAtDwMRuquolL9oxK4_rVaM8BAAMCAAN5AAM2BA"  # type - photo
 description_text = describer.file_id_to_description(image_file_id)
 print("Description is ", description_text)
