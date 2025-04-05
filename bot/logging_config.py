@@ -1,6 +1,7 @@
 import logging
 import logging.config
 import os
+from logging.handlers import TimedRotatingFileHandler
 
 # Ensure the logs directory exists
 os.makedirs('logs', exist_ok=True)
@@ -28,17 +29,20 @@ LOGGING_CONFIG = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
-            "level": "ERROR",
+            "level": "DEBUG",  # Change this to DEBUG to capture all levels
         },
         "file": {
-            "class": "logging.FileHandler",
+            "class": "logging.handlers.TimedRotatingFileHandler",
             "formatter": "default",
             "filename": "logs/app.log",
+            "when": "midnight",
+            "interval": 1,
+            "backupCount": 14,
             "level": "ERROR",
         },
     },
     "root": {
-        "level": "ERROR",
+        "level": "DEBUG",
         "handlers": ["console", "file"],
     },
 }

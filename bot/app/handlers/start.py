@@ -31,7 +31,40 @@ async def cmd_start(message: types.Message, state: FSMContext):
         first_name = message.from_user.first_name or ""
         last_name = message.from_user.last_name or ""
         full_name = f"{first_name} {last_name}".strip()
-        greeting = f"Привет, {full_name}! 🌟 Я помогу подобрать подходящую дверь — входную или межкомнатную."
+        greeting = (f"Привет, {full_name}! 🌟 Я помогу подобрать подходящую дверь — входную или межкомнатную. "
+                    f"Ты можешь спросить меня о чем угодно или отправить мне фото интерьера / двери, чтобы узнать больше."
+                    f"Также я понимаю голосовые")
         
         await message.answer(greeting, reply_markup=main_menu_kb)
 
+@router.message()
+async def log_message_details(message: types.Message):
+    # Log the message text
+    logger.info(f"Message from user: {message.text}")
+    message_text = message.text
+    file_id = None
+    file_type = None
+
+    # Check if the message contains a voice file
+    if message.voice:
+        file_id = message.voice.file_id
+        file_type = "voice"
+        # logger.info(f"Received a voice message. File ID: {file_id}, File Type: {file_type}")
+
+    # Check if the message contains a photo
+    elif message.photo:
+        file_id = message.photo[-1].file_id  # Get the file_id of the highest resolution photo
+        file_type = "photo"
+        message_text = message.caption or message.text or ""
+        # logger.info(f"Received a photo. File ID: {file_id}, File Type: {file_type}")
+
+    # Check if the message contains a document
+    elif message.document:
+        file_id = message.document.file_id
+        file_type = "document"
+        # logger.info(f"Received a document. File ID: {file_id}, File Type: {file_type}")
+        message_text = message.caption or message.text or ""
+    # Log other types of messages
+    else:
+        logger.info("Received a message with no file attached.")
+    logger.info(f"Message text: {message_text}. File ID: {file_id}, File Type: {file_type}")
