@@ -4,9 +4,11 @@ from typing import List
 from fastapi import APIRouter, Depends, Body, UploadFile
 
 from core.logging_config import logger
-from depends.chatgpt import get_chatgpt_vision_service, get_chatgpt_service, interaction_service_dep
+from depends.chatgpt import get_chatgpt_vision_service, get_chatgpt_service, interaction_service_dep, file_type_dep, \
+    files_transcriber_dep
 from depends.db import db_dep
-from models import Configuration
+from models import Configuration, Order
+from repositories.orders import get_current_user_order, check_current_user_order_exists
 from services.chatgpt import ChatGPT
 from services.chatgptvision import ChatGPTVision
 from services.limit_checker import check_limit, get_random_joke
@@ -82,10 +84,21 @@ async def process_question(
 @router.post("/chat")
 async def process_question(
         db: db_dep,
+        file_type: file_type_dep,
         interaction_service: interaction_service_dep,
+        describer_service: files_transcriber_dep,
         user_request: str = Body(...),
         user_id: str = Body(...),
+        file_id: str | None = Body(None),
+        city: str = Body(...),
 ):
+    if not check_current_user_order_exists(db=db, user_id=user_id):
+        logger.info(f"Creating new order for user {user_id}")
+        current_order = Order(user_id=user_id, city=city)
+        db.add(current_order)
+        db.commit()
+    else:
+        logger.info(f"Already existing order for user {user_id}")
     question_limit = db.query(Configuration).filter(Configuration.key == "question_limit").first()
     if question_limit is None:
         question_limit = Configuration(key="question_limit", value="5")
@@ -97,6 +110,27 @@ async def process_question(
         joke = get_random_joke(db)
         return {"message": "Daily limit reached", "result": joke}
 
+    file_description = None
+    if file_type:
+        file_description = describer_service.file_id_to_text(file_id=file_id)
+        # if file_type == "voice":
+            # extra_info = f" голосовое сообщение: {file_description} "
+        if file_type == "document" or file_type == "photo":
+            # extra_info = f" файл: {file_description} "
+            current_order = get_current_user_order(db, user_id=user_id)
+            if current_order:
+                current_order.file_id = file_id
+                db.add(current_order)
+                db.commit()
     logger.debug(f"Processing question for user {user_id}")
-    result = interaction_service.start_interaction(user_id=user_id, user_message=user_request)
-    return {"result": result}
+    result = interaction_service.start_interaction(user_id=user_id, user_message=user_request, file_type=file_type,
+                                                   file_description=file_description)
+    if result.get('contact_data'):
+        current_order = get_current_user_order(db, user_id=user_id)
+        if current_order:
+            current_order.contact_data = result.get('contact_data')
+            current_order.is_finished = True
+            current_order.gpt_summary = result.get('summary')
+            db.add(current_order)
+            db.commit()
+    return {"result": result.get("response")}

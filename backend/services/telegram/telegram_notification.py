@@ -1,11 +1,13 @@
 import os
 from telegram import Bot
 from telegram.error import TelegramError
+
+from core.Config import settings
 from core.logging_config import logger
 
 class TelegramNotificationService:
     def __init__(self):
-        self.bot_token = os.getenv("BOT_TOKEN")  # Ensure you have this token in your environment variables
+        self.bot_token = settings.bot_token  # Ensure you have this token in your environment variables
         if not self.bot_token:
             raise ValueError("Telegram bot token is not set in environment variables.")
         self.bot = Bot(token=self.bot_token)

@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from app.keyboards.main_menu import main_menu_kb
-from app.services.fastapi_client import manager_register  # Mock this function
+from app.services.fastapi_client import manager_register, send_message  # Mock this function
 from logging_config import logger
 
 router = Router()
@@ -35,11 +35,10 @@ async def cmd_start(message: types.Message, state: FSMContext):
                     f"Ты можешь спросить меня о чем угодно или отправить мне фото интерьера / двери, чтобы узнать больше."
                     f"Также я понимаю голосовые")
         
-        await message.answer(greeting, reply_markup=main_menu_kb)
+        await message.answer(greeting)
 
 @router.message()
-async def log_message_details(message: types.Message):
-    # Log the message text
+async def log_message_details(message: types.Message, state: FSMContext):
     logger.info(f"Message from user: {message.text}")
     message_text = message.text
     file_id = None
@@ -67,4 +66,12 @@ async def log_message_details(message: types.Message):
     # Log other types of messages
     else:
         logger.info("Received a message with no file attached.")
-    logger.info(f"Message text: {message_text}. File ID: {file_id}, File Type: {file_type}")
+    # logger.info(f"Message text: {message_text}. File ID: {file_id}, File Type: {file_type}")
+    user_data = await state.get_data()
+    city = user_data.get('city')
+    processing_message = await message.answer("Обрабатываю ваше сообщение, пожалуйста, подождите...")
+    response = await send_message(user_request=message_text, user_id=message.from_user.id, file_id=file_id,
+                                  file_type=file_type, city=city)
+    await processing_message.delete()
+    if response:
+        await message.answer(response)

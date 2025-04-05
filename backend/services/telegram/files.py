@@ -1,4 +1,5 @@
 import base64
+from abc import ABC, abstractmethod
 from io import BytesIO
 
 import requests
@@ -7,8 +8,14 @@ from pydub import AudioSegment
 
 from core.Config import settings
 
+class FileTranscriber(ABC):
+    @abstractmethod
+    def file_id_to_text(self, file_id: str) -> str:
+        pass
 
-class TelegramAudioTranscriber:
+
+
+class TelegramAudioTranscriber(FileTranscriber):
     def __init__(self, bot_token: str, api_key: str, base_url: str):
         self.bot_token = bot_token
         self.client = OpenAI(api_key=api_key, base_url=base_url)
@@ -53,12 +60,12 @@ class TelegramAudioTranscriber:
         return self.transcribe_audio(file_data)
 
 
-class TelegramImageDescriber:
+class TelegramImageDescriber(FileTranscriber):
     def __init__(self, bot_token: str, api_key: str, base_url: str):
         self.bot_token = bot_token
         self.client = OpenAI(api_key=api_key, base_url=base_url)
 
-    def download_file_by_id(self, file_id: str) -> bytes:
+    def _download_file_by_id(self, file_id: str) -> bytes:
         # Получаем информацию о файле
         file_info_url = f"https://api.telegram.org/bot{self.bot_token}/getFile?file_id={file_id}"
         file_info = requests.get(file_info_url).json()
@@ -74,7 +81,7 @@ class TelegramImageDescriber:
         return file_data
 
 
-    def describe_image(self, file_data: bytes) -> str:
+    def _describe_image(self, file_data: bytes) -> str:
         # Create in-memory buffer from the file data
         image_buffer = BytesIO(file_data)
 
@@ -103,9 +110,9 @@ class TelegramImageDescriber:
 
         return description.choices[0].message.content
 
-    def file_id_to_description(self, file_id: str) -> str:
-        file_data = self.download_file_by_id(file_id)
-        return self.describe_image(file_data)
+    def file_id_to_text(self, file_id: str) -> str:
+        file_data = self._download_file_by_id(file_id)
+        return self._describe_image(file_data)
 
 
 # Example usage for audio
@@ -125,8 +132,8 @@ describer = TelegramImageDescriber(
     api_key=settings.openai_key,
     base_url=settings.openai_url
 )
-
-# image_file_id = "BQACAgIAAxkBAAOOZ_D8DghUjHK__SDZXGdmVZTBszcAAolvAAKquolLelzyevmr4zM2BA"  # type -document
-image_file_id = "AgACAgIAAxkBAAOPZ_D-0kwkDwOf0M0fAtoCP1lek00AAtDwMRuquolL9oxK4_rVaM8BAAMCAAN5AAM2BA"  # type - photo
-description_text = describer.file_id_to_description(image_file_id)
-print("Description is ", description_text)
+#
+# # image_file_id = "BQACAgIAAxkBAAOOZ_D8DghUjHK__SDZXGdmVZTBszcAAolvAAKquolLelzyevmr4zM2BA"  # type -document
+# image_file_id = "AgACAgIAAxkBAAOPZ_D-0kwkDwOf0M0fAtoCP1lek00AAtDwMRuquolL9oxK4_rVaM8BAAMCAAN5AAM2BA"  # type - photo
+# description_text = describer.file_id_to_description(image_file_id)
+# print("Description is ", description_text)

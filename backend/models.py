@@ -57,34 +57,47 @@ class Order(Base):
     __tablename__ = 'orders'
 
     id = Column(Integer, primary_key=True, index=True)
-    city = Column(String, nullable=False)
-    door_type = Column(String, nullable=False)
-    priorities = Column(String, nullable=False)  # Store as a comma-separated string
-    contact = Column(String, nullable=False)
-    username = Column(String, nullable=True)
-    phone_number = Column(String, nullable=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=True)
-    address = Column(String, nullable=False)
-    user_request = Column(String, nullable=True)
-    gpt_answer = Column(String, nullable=True)
-    call_measurer = Column(Boolean, default=False)
     file_id = Column(String, nullable=True)
+    gpt_summary = Column(String, nullable=True)
+    contact_data = Column(String, nullable=True)
+    user_id = Column(String, nullable=False)
+    is_completed = Column(Boolean, default=False)
+    city = Column(String, nullable=False)
 
-    def __init__(self, city, door_type, priorities, contact, username, phone_number, first_name, last_name, address, user_request, gpt_answer, call_measurer, file_id):
-        self.city = city
-        self.door_type = door_type
-        self.priorities = priorities
-        self.contact = contact
-        self.username = username
-        self.phone_number = phone_number
-        self.first_name = first_name
-        self.last_name = last_name
-        self.address = address
-        self.user_request = user_request
-        self.gpt_answer = gpt_answer
-        self.call_measurer = call_measurer
-        self.file_id = file_id
+
+
+# class Order(Base):
+#     __tablename__ = 'orders'
+#
+#     id = Column(Integer, primary_key=True, index=True)
+#     city = Column(String, nullable=False)
+#     door_type = Column(String, nullable=False)
+#     priorities = Column(String, nullable=False)  # Store as a comma-separated string
+#     contact = Column(String, nullable=False)
+#     username = Column(String, nullable=True)
+#     phone_number = Column(String, nullable=True)
+#     first_name = Column(String, nullable=False)
+#     last_name = Column(String, nullable=True)
+#     address = Column(String, nullable=False)
+#     user_request = Column(String, nullable=True)
+#     gpt_answer = Column(String, nullable=True)
+#     call_measurer = Column(Boolean, default=False)
+#     file_id = Column(String, nullable=True)
+#
+#     def __init__(self, city, door_type, priorities, contact, username, phone_number, first_name, last_name, address, user_request, gpt_answer, call_measurer, file_id):
+#         self.city = city
+#         self.door_type = door_type
+#         self.priorities = priorities
+#         self.contact = contact
+#         self.username = username
+#         self.phone_number = phone_number
+#         self.first_name = first_name
+#         self.last_name = last_name
+#         self.address = address
+#         self.user_request = user_request
+#         self.gpt_answer = gpt_answer
+#         self.call_measurer = call_measurer
+#         self.file_id = file_id
 
 class Configuration(Base):
     __tablename__ = "configurations"

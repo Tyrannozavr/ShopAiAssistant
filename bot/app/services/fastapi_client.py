@@ -117,3 +117,30 @@ async def save_order(order_data: dict) -> str:
                     return f"Failed to save order. Status code: {response.status}"
         except aiohttp.ClientError as e:
             return f"Error connecting to the order service: {str(e)}"
+
+
+async def send_message(user_request: str, user_id: int, file_id: str = None, file_type: str = None, city: str = None) -> str:
+    url = f"{BACKEND_URL}/api/chatgpt/chat"
+
+    # Prepare the data as a JSON payload
+    json_data = {
+        'user_request': user_request,
+        'user_id': str(user_id),
+        'city': city
+    }
+    if file_id:
+        json_data['file_id'] = file_id
+        json_data['file_type'] = file_type
+    logger.info(f"Sending message: {json_data}")
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=json_data) as response:
+                if response.status == 200:
+                    response = await response.json()
+                    return response.get("result")
+                else:
+                    error = await response.json()
+                    logger.error(f"Failed to process question. Status code: {response.status}, error: {error}")
+                    return f"Failed to process question. Status code: {response.status}"
+        except aiohttp.ClientError as e:
+            return f"Error connecting to the question processing service: {str(e)}"

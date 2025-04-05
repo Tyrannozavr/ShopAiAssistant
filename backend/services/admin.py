@@ -72,18 +72,10 @@ class OrderAdmin(ModelView):
     fields = [
         "id",
         "city",
-        "door_type",
-        "priorities",
-        "contact",
-        "username",
-        "phone_number",
-        "first_name",
-        "last_name",
-        "address",
-        "user_request",
-        "gpt_answer",
-        "call_measurer",
+        "contact_data",
+        "gpt_summary",
         "file_id",
+        "user_id",
     ]
 
 class JokesAdmin(ModelView):

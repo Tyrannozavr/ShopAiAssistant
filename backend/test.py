@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from core.Config import settings
 from depends.db import get_db
 from services.interaction_service import InteractionService
-from services.telegram_notification import TelegramNotificationService
 
 load_dotenv()
 

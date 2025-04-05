@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from schemas.order import Order as OrderSchema
 from core.logging_config import logger
 from models import Manager, City, Order
-from services.telegram_notification import TelegramNotificationService
+from services.telegram.telegram_notification import TelegramNotificationService
 from datetime import datetime
 
 def select_manager_for_order(order: OrderSchema, db: Session) -> str:

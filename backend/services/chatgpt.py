@@ -2,13 +2,14 @@ import os
 from openai import OpenAI
 from sqlalchemy.orm import Session
 
+from core.Config import settings
 from core.logging_config import logger
 from models import Configuration, ChatGPTInteraction
 
 class ChatGPT:
     def __init__(self):
         self.client = OpenAI(
-            api_key=os.getenv("PROXYAPI_API_KEY"),  # Ensure you have this key in your environment variables
+            api_key=settings.openai_key,  # Ensure you have this key in your environment variables
             base_url="https://api.proxyapi.ru/openai/v1"
         )
         self.prompt_key = "question_prompt"  # Set a different key for retrieving the prompt
@@ -41,7 +42,7 @@ class ChatGPT:
                     "content": prompt
                 }
             ],
-            max_tokens=300,
+            # max_tokens=300,
         )
         return response.choices[0].message.content
 
